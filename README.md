@@ -1,24 +1,26 @@
-# ⬡ OpenCore — Mental Health Assessment
+# 🧠 OpenCore — Mental Health Assessment
 
-> A free, open-source, anonymous mental health self-assessment tool.
+An open-source, free mental health self-assessment tool built with React + Vite. 60 questions across 8 dimensions of mental wellbeing.
 
-![OpenCore](https://img.shields.io/badge/license-MIT-blue) ![Next.js](https://img.shields.io/badge/Next.js-14-black) ![Vercel](https://img.shields.io/badge/deployed-Vercel-blue)
+**Live Demo:** [opencore.vercel.app](https://opencore.vercel.app) *(deploy your own below)*
+
+![OpenCore Screenshot](https://raw.githubusercontent.com/yourusername/opencore/main/screenshot.png)
 
 ---
 
 ## ✨ Features
 
-- **56 questions** across 8 mental health dimensions
-- One question per screen with smooth transitions
-- Detailed results with section-by-section breakdown
-- **Save results as JPG** (via html2canvas)
-- **Share to X, WhatsApp, Facebook** or copy text
-- Fully anonymous — no data stored anywhere
-- Open source & free forever
-- Responsive design (mobile-first)
-- Keyboard navigation support
+- 📋 **60 questions** across 8 mental health dimensions
+- 🎯 One question per screen — focused, calm experience
+- 📊 Detailed results with section breakdown
+- 📥 **Save results as JPG** for personal records
+- 🔗 **Share on social media** (X/Twitter, Facebook)
+- 📱 Fully responsive — works on mobile & desktop
+- ♿ Accessible design with keyboard navigation
+- 🌙 Beautiful dark theme
+- ⚡ Built with Vite — blazing fast
 
-## 🧠 Assessment Sections
+## 🧩 Assessment Dimensions
 
 | Section | Questions |
 |---------|-----------|
@@ -31,85 +33,105 @@
 | 💆 Stress & Coping | 6 |
 | 🌟 Self-Worth & Purpose | 6 |
 
-**Total: 56 questions · Max score: 168**
+## 📊 Score Bands
 
-## 🚀 Quick Start
+| Score | Band |
+|-------|------|
+| 0–28 | 🟢 Thriving |
+| 29–56 | 🔵 Mild Stress |
+| 57–98 | 🟡 Moderate Distress |
+| 99–140 | 🟠 High Distress |
+| 141–168 | 🔴 Severe Distress |
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js 18+
+- npm or yarn
+
+### Installation
 
 ```bash
-# Clone the repo
-git clone https://github.com/opencore-app/opencore.git
+git clone https://github.com/yourusername/opencore.git
 cd opencore
-
-# Install dependencies
 npm install
-
-# Start dev server
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000)
+Open [http://localhost:5173](http://localhost:5173) in your browser.
 
-## 📦 Deploy to Vercel
+### Build for Production
 
-The easiest way to deploy is with [Vercel](https://vercel.com):
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/opencore-app/opencore)
-
-Or via CLI:
 ```bash
-npm install -g vercel
-vercel
+npm run build
 ```
 
-## 🏗 Tech Stack
+---
 
-- **Framework:** Next.js 14 (Pages Router)
-- **Styling:** CSS Modules
-- **Fonts:** Syne + DM Sans (Google Fonts)
-- **Image Export:** html2canvas
-- **Animations:** CSS animations + transitions
-- **Deployment:** Vercel
+## 🌐 Deploy to Vercel
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/opencore)
+
+1. Fork this repository
+2. Go to [vercel.com](https://vercel.com) → New Project
+3. Import your fork
+4. Click **Deploy** — no configuration needed!
+
+---
 
 ## 📁 Project Structure
 
 ```
 opencore/
-├── src/
-│   ├── data/
-│   │   └── questions.js       # All 56 questions & scoring logic
-│   ├── pages/
-│   │   ├── _app.js
-│   │   ├── _document.js
-│   │   ├── index.js           # Landing page
-│   │   ├── assessment.js      # Quiz page
-│   │   └── results.js         # Results page
-│   └── styles/
-│       ├── globals.css
-│       ├── Home.module.css
-│       ├── Assessment.module.css
-│       └── Results.module.css
 ├── public/
-├── next.config.js
-└── package.json
+│   └── favicon.svg
+├── src/
+│   ├── components/
+│   │   ├── Landing.jsx     # Home screen
+│   │   ├── Quiz.jsx        # Question flow
+│   │   └── Results.jsx     # Score & sharing
+│   ├── data/
+│   │   └── questions.js    # All questions & scoring logic
+│   ├── App.jsx             # Root component
+│   ├── main.jsx            # Entry point
+│   └── index.css           # Global styles
+├── index.html
+├── package.json
+├── vite.config.js
+└── vercel.json
 ```
-
-## ⚠️ Disclaimer
-
-This assessment is for **self-awareness purposes only**. It is not a clinical diagnosis. If you are in crisis or having thoughts of self-harm, please contact a mental health helpline or medical professional immediately.
-
-**Crisis resources:**
-- Crisis Text Line: Text HOME to 741741 (US)
-- Samaritans: 116 123 (UK & Ireland)
-- Befrienders Worldwide: [befrienders.org](https://befrienders.org)
-
-## 📝 License
-
-MIT License — free to use, modify, and distribute.
-
-## 🤝 Contributing
-
-Contributions, issues, and feature requests are welcome! Feel free to open a PR.
 
 ---
 
-Made with ❤️ for mental health awareness
+## ⚠️ Disclaimer
+
+This tool is for **self-awareness purposes only**. It is **not a clinical diagnosis**. If you are in crisis or having thoughts of self-harm, please contact a mental health helpline or a medical professional immediately.
+
+**International resources:**
+- 🌍 [findahelpline.com](https://findahelpline.com) — worldwide crisis lines
+- 🇺🇸 988 Suicide & Crisis Lifeline (US): call or text **988**
+- 🇬🇧 Samaritans (UK): **116 123**
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please open an issue first to discuss what you'd like to change.
+
+1. Fork the repo
+2. Create a feature branch: `git checkout -b feature/my-feature`
+3. Commit changes: `git commit -m 'Add my feature'`
+4. Push: `git push origin feature/my-feature`
+5. Open a Pull Request
+
+---
+
+## 📄 License
+
+MIT — free to use, modify, and distribute.
+
+---
+
+*Built with ❤️ to make mental health self-awareness more accessible.*
