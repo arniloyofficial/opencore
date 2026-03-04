@@ -1,126 +1,115 @@
-# ◈ OpenCore MindCheck
+# ⬡ OpenCore — Mental Health Assessment
 
-**A free, open-source mental health self-assessment tool.**
+> A free, open-source, anonymous mental health self-assessment tool.
 
-OpenCore MindCheck is a 56-question assessment covering 8 dimensions of mental wellbeing:
-- 🧠 Depression
-- 😰 Anxiety
-- 😴 Sleep & Energy
-- 🤝 Social Connection
-- 🧩 Focus & Cognition
-- 🌊 Emotional Regulation
-- 💆 Stress & Coping
-- 🌟 Self-Worth & Purpose
-
-**Features:**
-- One question per screen with smooth transitions
-- Keyboard navigation (1–4 to select, Enter to continue)
-- Detailed results with per-section breakdown
-- Save results as a JPG image
-- Share to Twitter/X and LinkedIn
-- No account required — all data stays on your device
-- Fully responsive for mobile and desktop
+![OpenCore](https://img.shields.io/badge/license-MIT-blue) ![Next.js](https://img.shields.io/badge/Next.js-14-black) ![Vercel](https://img.shields.io/badge/deployed-Vercel-blue)
 
 ---
 
-## 🚀 Getting Started
+## ✨ Features
 
-### Prerequisites
-- Node.js 18+
-- npm or yarn
+- **56 questions** across 8 mental health dimensions
+- One question per screen with smooth transitions
+- Detailed results with section-by-section breakdown
+- **Save results as JPG** (via html2canvas)
+- **Share to X, WhatsApp, Facebook** or copy text
+- Fully anonymous — no data stored anywhere
+- Open source & free forever
+- Responsive design (mobile-first)
+- Keyboard navigation support
 
-### Installation
+## 🧠 Assessment Sections
+
+| Section | Questions |
+|---------|-----------|
+| 🧠 Depression Screening | 9 |
+| 😰 Anxiety Screening | 9 |
+| 😴 Sleep & Energy | 6 |
+| 🤝 Social & Emotional Connection | 7 |
+| 🧩 Focus & Cognitive Function | 6 |
+| 🌊 Emotional Regulation | 7 |
+| 💆 Stress & Coping | 6 |
+| 🌟 Self-Worth & Purpose | 6 |
+
+**Total: 56 questions · Max score: 168**
+
+## 🚀 Quick Start
 
 ```bash
-git clone https://github.com/your-username/opencore-mindcheck.git
-cd opencore-mindcheck
+# Clone the repo
+git clone https://github.com/opencore-app/opencore.git
+cd opencore
+
+# Install dependencies
 npm install
+
+# Start dev server
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+Open [http://localhost:3000](http://localhost:3000)
 
-### Build for Production
+## 📦 Deploy to Vercel
 
+The easiest way to deploy is with [Vercel](https://vercel.com):
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/opencore-app/opencore)
+
+Or via CLI:
 ```bash
-npm run build
-npm start
+npm install -g vercel
+vercel
 ```
 
----
+## 🏗 Tech Stack
 
-## 🌐 Deploy to Vercel
-
-The easiest way to deploy:
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/your-username/opencore-mindcheck)
-
-Or manually:
-1. Push this repo to GitHub
-2. Go to [vercel.com](https://vercel.com) and import your repository
-3. Vercel will auto-detect Next.js and deploy
-
----
+- **Framework:** Next.js 14 (Pages Router)
+- **Styling:** CSS Modules
+- **Fonts:** Syne + DM Sans (Google Fonts)
+- **Image Export:** html2canvas
+- **Animations:** CSS animations + transitions
+- **Deployment:** Vercel
 
 ## 📁 Project Structure
 
 ```
 opencore/
-├── lib/
-│   └── questions.js        # All questions, scoring logic, bands
-├── pages/
-│   ├── _app.js
-│   ├── _document.js
-│   ├── index.js            # Landing page
-│   ├── assessment.js       # Quiz engine (one question per screen)
-│   └── results.js          # Results, charts, save/share
-├── styles/
-│   ├── globals.css
-│   ├── Home.module.css
-│   ├── Assessment.module.css
-│   └── Results.module.css
+├── src/
+│   ├── data/
+│   │   └── questions.js       # All 56 questions & scoring logic
+│   ├── pages/
+│   │   ├── _app.js
+│   │   ├── _document.js
+│   │   ├── index.js           # Landing page
+│   │   ├── assessment.js      # Quiz page
+│   │   └── results.js         # Results page
+│   └── styles/
+│       ├── globals.css
+│       ├── Home.module.css
+│       ├── Assessment.module.css
+│       └── Results.module.css
 ├── public/
-│   └── favicon.ico
 ├── next.config.js
 └── package.json
 ```
 
----
-
-## 📊 Scoring
-
-| Score | Band | Interpretation |
-|---|---|---|
-| 0–28 | 🟢 Thriving | Strong mental wellbeing |
-| 29–56 | 🔵 Mild Stress | Some areas to monitor |
-| 57–98 | 🟡 Moderate Distress | Consider speaking with someone |
-| 99–140 | 🟠 High Distress | Seek professional support soon |
-| 141–168 | 🔴 Severe Distress | Please reach out for help |
-
----
-
 ## ⚠️ Disclaimer
 
-This tool is for **self-awareness purposes only**. It is **not a clinical diagnosis**. If you are in crisis or experiencing thoughts of self-harm, please contact a mental health helpline or medical professional immediately.
+This assessment is for **self-awareness purposes only**. It is not a clinical diagnosis. If you are in crisis or having thoughts of self-harm, please contact a mental health helpline or medical professional immediately.
 
----
+**Crisis resources:**
+- Crisis Text Line: Text HOME to 741741 (US)
+- Samaritans: 116 123 (UK & Ireland)
+- Befrienders Worldwide: [befrienders.org](https://befrienders.org)
+
+## 📝 License
+
+MIT License — free to use, modify, and distribute.
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please open an issue or submit a pull request.
-
-1. Fork the repository
-2. Create your branch: `git checkout -b feature/your-feature`
-3. Commit your changes: `git commit -m 'Add some feature'`
-4. Push to the branch: `git push origin feature/your-feature`
-5. Open a Pull Request
+Contributions, issues, and feature requests are welcome! Feel free to open a PR.
 
 ---
 
-## 📄 License
-
-MIT License — see [LICENSE](LICENSE) for details.
-
----
-
-Built with ❤️ by the OpenCore community.
+Made with ❤️ for mental health awareness
