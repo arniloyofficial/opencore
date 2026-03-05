@@ -1,13 +1,13 @@
 export const ANSWER_OPTIONS = [
-  { label: "Never", score: 0, description: "Not at all in the last 30 days" },
+  { label: "Never",  score: 0, description: "Not at all in the last 30 days" },
   { label: "Rarely", score: 1, description: "A few days in the last 30 days" },
-  { label: "Often", score: 2, description: "More than half the days" },
+  { label: "Often",  score: 2, description: "More than half the days" },
   { label: "Always", score: 3, description: "Nearly every day" },
 ];
 
 export const SECTIONS = [
   {
-    id: "A", title: "Depression Screening", emoji: "🧠", color: "#6366f1",
+    id: "A", title: "Depression Screening", icon: "depression", color: "#6366f1",
     questions: [
       "Little interest or pleasure in doing things you used to enjoy",
       "Feeling down, depressed, or hopeless",
@@ -22,7 +22,7 @@ export const SECTIONS = [
     ],
   },
   {
-    id: "B", title: "Anxiety Screening", emoji: "😰", color: "#f59e0b",
+    id: "B", title: "Anxiety Screening", icon: "anxiety", color: "#f59e0b",
     questions: [
       "Feeling nervous, anxious, or on edge without a clear reason",
       "Not being able to stop or control your worrying",
@@ -37,7 +37,7 @@ export const SECTIONS = [
     ],
   },
   {
-    id: "C", title: "Sleep & Energy", emoji: "😴", color: "#8b5cf6",
+    id: "C", title: "Sleep & Energy", icon: "sleep", color: "#8b5cf6",
     questions: [
       "Difficulty falling asleep even when you wanted to",
       "Waking up in the middle of the night and struggling to go back to sleep",
@@ -48,7 +48,7 @@ export const SECTIONS = [
     ],
   },
   {
-    id: "D", title: "Social & Emotional Connection", emoji: "🤝", color: "#10b981",
+    id: "D", title: "Social & Emotional Connection", icon: "social", color: "#10b981",
     questions: [
       "Feeling lonely or emotionally cut off from people around you",
       "Withdrawing from friends, family, or social activities you used to enjoy",
@@ -61,7 +61,7 @@ export const SECTIONS = [
     ],
   },
   {
-    id: "E", title: "Focus & Cognitive Function", emoji: "🧩", color: "#3b82f6",
+    id: "E", title: "Focus & Cognitive Function", icon: "focus", color: "#3b82f6",
     questions: [
       "Difficulty concentrating on tasks at work, school, or home",
       "Forgetting things more than usual — appointments, names, tasks",
@@ -72,7 +72,7 @@ export const SECTIONS = [
     ],
   },
   {
-    id: "F", title: "Emotional Regulation", emoji: "🌊", color: "#06b6d4",
+    id: "F", title: "Emotional Regulation", icon: "emotion", color: "#06b6d4",
     questions: [
       "Experiencing sudden mood swings that were hard to explain or control",
       "Feeling emotionally numb or detached from things that should matter to you",
@@ -84,7 +84,7 @@ export const SECTIONS = [
     ],
   },
   {
-    id: "G", title: "Stress & Coping", emoji: "💆", color: "#f97316",
+    id: "G", title: "Stress & Coping", icon: "stress", color: "#f97316",
     questions: [
       "Feeling under constant pressure or stress with no relief",
       "Using food, alcohol, screens, or other habits to escape negative feelings",
@@ -96,7 +96,7 @@ export const SECTIONS = [
     ],
   },
   {
-    id: "H", title: "Self-Worth & Purpose", emoji: "🌟", color: "#ec4899",
+    id: "H", title: "Self-Worth & Purpose", icon: "selfworth", color: "#ec4899",
     questions: [
       "Being overly self-critical or harsh with yourself after mistakes",
       "Feeling like your life lacks purpose or direction",
@@ -113,7 +113,7 @@ export const ALL_QUESTIONS = SECTIONS.flatMap((section) =>
     id: `${section.id}${i + 1}`,
     section: section.id,
     sectionTitle: section.title,
-    sectionEmoji: section.emoji,
+    sectionIcon: section.icon,
     sectionColor: section.color,
     text: q,
     index: i,
@@ -124,35 +124,35 @@ export const SCORE_BANDS = [
   {
     min: 0, max: 30,
     label: "Thriving",
-    emoji: "🟢", color: "#22c55e", bg: "#052e16",
+    icon: "thriving", color: "#22c55e", bg: "#052e16",
     description: "Your mental wellbeing appears genuinely strong across most areas of life. Your responses suggest you're managing stress well, maintaining energy, staying emotionally balanced, and feeling connected to the people and things that matter to you. This is something worth acknowledging and actively protecting.",
     advice: "Keep investing in the habits that got you here — sleep, movement, rest, and honest connection with others.",
   },
   {
     min: 31, max: 60,
     label: "Mild Stress",
-    emoji: "🔵", color: "#60a5fa", bg: "#0c1a2e",
+    icon: "mild", color: "#60a5fa", bg: "#0c1a2e",
     description: "You're doing reasonably well overall, but your responses suggest some areas are beginning to feel the pressure. You may be experiencing occasional fatigue, low-level worry, or moments where things feel harder than usual. Nothing here is alarming, but these are early signals worth paying attention to before they grow.",
     advice: "Small consistent actions help — carving out time to unwind, talking to someone you trust, or simply slowing down.",
   },
   {
     min: 61, max: 105,
     label: "Moderate Distress",
-    emoji: "🟡", color: "#fbbf24", bg: "#1c1400",
+    icon: "moderate", color: "#fbbf24", bg: "#1c1400",
     description: "You're experiencing noticeable challenges across several areas of your wellbeing. Whether it's persistent stress, low mood, disrupted sleep, difficulty focusing, or a growing sense of disconnection — these feelings are real and meaningful. This is a clear signal that something needs to change, and that you deserve support.",
     advice: "Reach out to a trusted friend, counsellor, or mental health professional. Talking honestly is often the most powerful first step.",
   },
   {
     min: 106, max: 150,
     label: "High Distress",
-    emoji: "🟠", color: "#fb923c", bg: "#1c0a00",
+    icon: "high", color: "#fb923c", bg: "#1c0a00",
     description: "You're going through a genuinely difficult time across multiple areas of your life. Your responses reflect significant strain — emotionally, mentally, and possibly physically. This is not weakness. It's a sign that you've been carrying too much for too long, and that professional support is no longer optional — it's necessary.",
     advice: "Please reach out to a mental health professional soon. Services like Kaan Pete Roi and Moner Bondhu are available in Bangladesh.",
   },
   {
     min: 151, max: 180,
     label: "Severe Distress",
-    emoji: "🔴", color: "#f87171", bg: "#1c0000",
+    icon: "severe", color: "#f87171", bg: "#1c0000",
     description: "Your results indicate you may be in significant pain right now — across nearly every dimension we measured. What you're feeling is real, and it deserves immediate care and attention. You don't have to keep carrying this alone. Reaching out is not a sign of failure; it is the most important thing you can do right now.",
     advice: "Please contact Kaan Pete Roi (01779-554391) or NIMH Bangladesh today. If you're in crisis, tell someone you trust immediately.",
   },

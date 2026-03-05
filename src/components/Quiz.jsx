@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { ALL_QUESTIONS, ANSWER_OPTIONS, SECTIONS } from "../data/questions";
+import { SectionIcon } from "./SectionIcons";
 
 export default function Quiz({ onComplete, onBack }) {
   const [currentIdx, setCurrentIdx] = useState(0);
@@ -23,33 +24,20 @@ export default function Quiz({ onComplete, onBack }) {
     if (scoreToUse === null) return;
     const newAnswers = { ...answers, [question.id]: scoreToUse };
     setAnswers(newAnswers);
-    if (currentIdx === total - 1) {
-      onComplete(newAnswers);
-      return;
-    }
+    if (currentIdx === total - 1) { onComplete(newAnswers); return; }
     setDirection(1);
     setAnimating(true);
-    setTimeout(() => {
-      setCurrentIdx(i => i + 1);
-      setAnimating(false);
-    }, 300);
+    setTimeout(() => { setCurrentIdx(i => i + 1); setAnimating(false); }, 300);
   }
 
   function handleSelect(score) {
-    // Clear any pending auto-advance (e.g. user changed answer quickly)
     if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current);
     setSelected(score);
-    // Auto-advance after 400ms
-    autoAdvanceTimer.current = setTimeout(() => {
-      handleNext(score);
-    }, 400);
+    autoAdvanceTimer.current = setTimeout(() => { handleNext(score); }, 400);
   }
 
-  // Clean up timer on unmount
   useEffect(() => {
-    return () => {
-      if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current);
-    };
+    return () => { if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current); };
   }, []);
 
   function handleBack() {
@@ -57,10 +45,7 @@ export default function Quiz({ onComplete, onBack }) {
     if (currentIdx === 0) { onBack(); return; }
     setDirection(-1);
     setAnimating(true);
-    setTimeout(() => {
-      setCurrentIdx(i => i - 1);
-      setAnimating(false);
-    }, 300);
+    setTimeout(() => { setCurrentIdx(i => i - 1); setAnimating(false); }, 300);
   }
 
   useEffect(() => {
@@ -114,10 +99,10 @@ export default function Quiz({ onComplete, onBack }) {
           maxWidth: 660,
         }}>
 
-          {/* Section badge */}
+          {/* Section badge — SVG icon instead of emoji */}
           <div style={{ display:"flex", alignItems:"center", gap:"0.5rem", marginBottom:"1.75rem" }}>
-            <div style={{ background:`${currentSection.color}20`, border:`1px solid ${currentSection.color}40`, borderRadius:20, padding:"0.35rem 1rem", display:"inline-flex", alignItems:"center", gap:"0.4rem" }}>
-              <span style={{ fontSize:"0.95rem" }}>{currentSection.emoji}</span>
+            <div style={{ background:`${currentSection.color}20`, border:`1px solid ${currentSection.color}40`, borderRadius:20, padding:"0.35rem 1rem", display:"inline-flex", alignItems:"center", gap:"0.5rem" }}>
+              <SectionIcon id={currentSection.icon} size={15} color={currentSection.color} />
               <span style={{ fontSize:"0.8rem", color:currentSection.color, fontWeight:600 }}>{currentSection.title}</span>
               <span style={{ fontSize:"0.75rem", color:`${currentSection.color}80` }}>· {questionNumInSection}/{sectionQuestions.length}</span>
             </div>
@@ -128,7 +113,6 @@ export default function Quiz({ onComplete, onBack }) {
             {question.text}
           </h2>
 
-          {/* Timeframe */}
           <p style={{ fontSize:"0.85rem", color:"#475569", margin:"0 0 2rem", fontStyle:"italic" }}>
             In the past 30 days…
           </p>
@@ -154,8 +138,6 @@ export default function Quiz({ onComplete, onBack }) {
                 }}
                 onMouseEnter={e => { if (!isSelected) { e.currentTarget.style.background = "rgba(255,255,255,0.06)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.18)"; e.currentTarget.style.transform = "translateX(6px)"; }}}
                 onMouseLeave={e => { if (!isSelected) { e.currentTarget.style.background = "rgba(255,255,255,0.03)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; e.currentTarget.style.transform = "translateX(0)"; }}}>
-
-                  {/* Number badge */}
                   <div style={{
                     width: 36, height: 36, borderRadius: 10, flexShrink: 0,
                     background: isSelected ? currentSection.color : "rgba(255,255,255,0.06)",
@@ -166,8 +148,6 @@ export default function Quiz({ onComplete, onBack }) {
                   }}>
                     {i + 1}
                   </div>
-
-                  {/* Label + description */}
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: "1rem", fontWeight: 600, color: isSelected ? "#f1f5f9" : "#94a3b8", marginBottom: "0.15rem", fontFamily:"'Syne', sans-serif" }}>
                       {opt.label}
@@ -176,8 +156,6 @@ export default function Quiz({ onComplete, onBack }) {
                       {opt.description}
                     </div>
                   </div>
-
-                  {/* Check circle */}
                   <div style={{
                     width: 22, height: 22, borderRadius: "50%", flexShrink: 0,
                     border: `2px solid ${isSelected ? currentSection.color : "rgba(255,255,255,0.12)"}`,
@@ -198,8 +176,7 @@ export default function Quiz({ onComplete, onBack }) {
 
           {/* Navigation */}
           <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:"1.25rem" }}>
-            <button onClick={handleBack}
-              disabled={currentIdx === 0}
+            <button onClick={handleBack} disabled={currentIdx === 0}
               style={{ display:"flex", alignItems:"center", gap:"0.4rem", padding:"0.75rem 1.25rem", background:"transparent", border:"1px solid rgba(255,255,255,0.08)", borderRadius:12, color: currentIdx === 0 ? "#334155" : "#64748b", cursor: currentIdx === 0 ? "not-allowed" : "pointer", fontSize:"0.9rem", fontFamily:"'DM Sans', sans-serif", transition:"all 0.2s" }}
               onMouseEnter={e => { if (currentIdx !== 0) e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)"; }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; }}>
@@ -207,18 +184,15 @@ export default function Quiz({ onComplete, onBack }) {
               Previous
             </button>
 
-            <button onClick={() => handleNext()}
-              disabled={selected === null}
+            <button onClick={() => handleNext()} disabled={selected === null}
               style={{
                 display:"flex", alignItems:"center", gap:"0.5rem",
                 padding:"0.85rem 2rem",
                 background: selected !== null ? `linear-gradient(135deg, #6366f1, ${currentSection.color})` : "rgba(255,255,255,0.05)",
-                border: "none",
-                borderRadius: 12,
+                border: "none", borderRadius: 12,
                 color: selected !== null ? "#fff" : "#334155",
                 cursor: selected !== null ? "pointer" : "not-allowed",
-                fontSize: "0.95rem", fontWeight: 600,
-                fontFamily: "'DM Sans', sans-serif",
+                fontSize: "0.95rem", fontWeight: 600, fontFamily: "'DM Sans', sans-serif",
                 boxShadow: selected !== null ? `0 8px 24px ${currentSection.color}35` : "none",
                 transition: "all 0.2s ease",
               }}
@@ -229,14 +203,13 @@ export default function Quiz({ onComplete, onBack }) {
             </button>
           </div>
 
-          {/* Keyboard hint */}
           <p style={{ textAlign:"center", fontSize:"0.72rem", color:"#475569", margin:"0 0 0.4rem" }}>
             Press{" "}
             <kbd style={{ padding:"1px 5px", border:"1px solid #475569", borderRadius:4, fontSize:"0.68rem", fontFamily:"monospace" }}>1–4</kbd>
             {" "}to select · auto-advances in 0.4s
           </p>
           <p style={{ textAlign:"center", fontSize:"0.72rem", color:"#475569", margin:0 }}>
-        All questions are based on your activities in the <strong style={{ fontWeight:500, color:"#475569" }}>last 30 days</strong>
+            All questions are based on your activities in the <strong style={{ fontWeight:500, color:"#475569" }}>last 30 days</strong>
           </p>
 
         </div>

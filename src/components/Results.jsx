@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { ALL_QUESTIONS, SECTIONS, getBand, getSectionScore, getTotalScore } from "../data/questions";
+import { SectionIcon, BandIcon } from "./SectionIcons";
 
 const MAX_SCORE = 180;
 
@@ -22,12 +23,10 @@ function RadarChart({ sectionScores }) {
   const n = sectionScores.length;
   const levels = 5;
 
-  // angle for each axis (start from top, go clockwise)
   function angle(i) {
     return (Math.PI * 2 * i) / n - Math.PI / 2;
   }
 
-  // point on the chart for a given axis index and radius fraction (0–1)
   function point(i, fraction) {
     const a = angle(i);
     return {
@@ -36,7 +35,6 @@ function RadarChart({ sectionScores }) {
     };
   }
 
-  // build polygon points string
   function polygonPoints(fractions) {
     return fractions.map((f, i) => {
       const p = point(i, f);
@@ -44,13 +42,11 @@ function RadarChart({ sectionScores }) {
     }).join(" ");
   }
 
-  // grid level polygons
   const gridPolygons = Array.from({ length: levels }, (_, lvl) => {
     const f = (lvl + 1) / levels;
     return polygonPoints(Array(n).fill(f));
   });
 
-  // data polygon
   const dataFractions = sectionScores.map(s => s.pct / 100);
   const dataPoints = polygonPoints(dataFractions);
 
@@ -66,7 +62,7 @@ function RadarChart({ sectionScores }) {
         style={{ overflow: "visible", maxWidth: "100%" }}
       >
         <defs>
-          {sectionScores.map((sec, i) => (
+          {sectionScores.map((_, i) => (
             <filter key={`glow-${i}`} id={`glow-${i}`} x="-50%" y="-50%" width="200%" height="200%">
               <feGaussianBlur stdDeviation="3" result="blur" />
               <feMerge>
@@ -79,75 +75,40 @@ function RadarChart({ sectionScores }) {
 
         {/* Grid polygons */}
         {gridPolygons.map((pts, lvl) => (
-          <polygon
-            key={lvl}
-            points={pts}
-            fill="none"
-            stroke="rgba(255,255,255,0.07)"
-            strokeWidth="1"
-          />
+          <polygon key={lvl} points={pts} fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="1" />
         ))}
 
         {/* Axis lines */}
         {sectionScores.map((_, i) => {
           const outer = point(i, 1);
-          return (
-            <line
-              key={i}
-              x1={cx} y1={cy}
-              x2={outer.x} y2={outer.y}
-              stroke="rgba(255,255,255,0.06)"
-              strokeWidth="1"
-            />
-          );
+          return <line key={i} x1={cx} y1={cy} x2={outer.x} y2={outer.y} stroke="rgba(255,255,255,0.06)" strokeWidth="1" />;
         })}
 
         {/* Data polygon fill */}
-        <polygon
-          points={dataPoints}
-          fill="rgba(99,102,241,0.12)"
-          stroke="rgba(99,102,241,0.5)"
-          strokeWidth="1.5"
-          strokeLinejoin="round"
-        />
+        <polygon points={dataPoints} fill="rgba(99,102,241,0.12)" stroke="rgba(99,102,241,0.5)" strokeWidth="1.5" strokeLinejoin="round" />
 
-        {/* Axis labels (emoji) */}
+        {/* Axis labels — SVG foreignObject for each section icon */}
         {sectionScores.map((sec, i) => {
-          const labelR = maxR + 22;
+          const labelR = maxR + 24;
           const a = angle(i);
           const lx = cx + labelR * Math.cos(a);
           const ly = cy + labelR * Math.sin(a);
           return (
-            <text
-              key={i}
-              x={lx}
-              y={ly}
-              textAnchor="middle"
-              dominantBaseline="central"
-              fontSize="16"
-              style={{ userSelect: "none" }}
-            >
-              {sec.emoji}
-            </text>
+            <foreignObject key={i} x={lx - 10} y={ly - 10} width="20" height="20" style={{ overflow: "visible" }}>
+              <SectionIcon id={sec.icon} size={20} color={sec.color} />
+            </foreignObject>
           );
         })}
 
-        {/* Data dots — colored per section */}
+        {/* Data dots */}
         {sectionScores.map((sec, i) => {
           const p = point(i, dataFractions[i]);
           const isHovered = hoveredIdx === i;
           return (
             <g key={i}>
               <title>{sec.title}: {sec.pct}%</title>
-              {/* Outer glow ring when hovered */}
               {isHovered && (
-                <circle
-                  cx={p.x} cy={p.y}
-                  r={10}
-                  fill={`${sec.color}25`}
-                  stroke={`${sec.color}60`}
-                  strokeWidth="1"
-                />
+                <circle cx={p.x} cy={p.y} r={10} fill={`${sec.color}25`} stroke={`${sec.color}60`} strokeWidth="1" />
               )}
               <circle
                 cx={p.x} cy={p.y}
@@ -160,17 +121,9 @@ function RadarChart({ sectionScores }) {
                 onMouseEnter={() => setHoveredIdx(i)}
                 onMouseLeave={() => setHoveredIdx(null)}
               />
-              {/* Percentage label on hover */}
               {isHovered && (
-                <text
-                  x={p.x}
-                  y={p.y - 12}
-                  textAnchor="middle"
-                  fontSize="10"
-                  fontWeight="700"
-                  fill={sec.color}
-                  style={{ pointerEvents: "none", fontFamily: "'DM Sans', sans-serif" }}
-                >
+                <text x={p.x} y={p.y - 12} textAnchor="middle" fontSize="10" fontWeight="700" fill={sec.color}
+                  style={{ pointerEvents: "none", fontFamily: "'DM Sans', sans-serif" }}>
                   {sec.pct}%
                 </text>
               )}
@@ -226,22 +179,10 @@ export default function Results({ answers, onRetake }) {
     return `I just completed the OpenCore Mental Health Assessment.\nResult: ${band.label} (${totalScore}/${MAX_SCORE})\nTake yours: ${SITE_URL}`;
   }
 
-  function shareOnTwitter() {
-    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(getShareText())}`, "_blank");
-  }
-
-  function shareOnWhatsApp() {
-    window.open(`https://wa.me/?text=${encodeURIComponent(getShareText())}`, "_blank");
-  }
-
-  function shareOnFacebook() {
-    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(SITE_URL)}`, "_blank");
-  }
-
-  function copyLink() {
-    navigator.clipboard.writeText(SITE_URL);
-    alert("Link copied!");
-  }
+  function shareOnTwitter() { window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(getShareText())}`, "_blank"); }
+  function shareOnWhatsApp() { window.open(`https://wa.me/?text=${encodeURIComponent(getShareText())}`, "_blank"); }
+  function shareOnFacebook() { window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(SITE_URL)}`, "_blank"); }
+  function copyLink() { navigator.clipboard.writeText(SITE_URL); alert("Link copied!"); }
 
   const dateStr = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
 
@@ -296,14 +237,17 @@ export default function Results({ answers, onRetake }) {
                 <circle cx="80" cy="80" r="68" fill="none" stroke={band.color} strokeWidth="10"
                   strokeDasharray={`${2 * Math.PI * 68}`}
                   strokeDashoffset={`${2 * Math.PI * 68 * (1 - pct / 100)}`}
-                  strokeLinecap="round"
-                  transform="rotate(-90 80 80)"
+                  strokeLinecap="round" transform="rotate(-90 80 80)"
                   style={{ transition:"stroke-dashoffset 1.5s ease", filter:`drop-shadow(0 0 8px ${band.color}60)` }} />
               </svg>
               <div style={{ position:"absolute", top:"50%", left:"50%", transform:"translate(-50%,-50%)", textAlign:"center" }}>
                 <div style={{ fontSize:"2.5rem", fontWeight:800, color:"#fff", fontFamily:"'Syne', sans-serif", lineHeight:1 }}>{totalScore}</div>
                 <div style={{ fontSize:"0.72rem", color:"#475569" }}>out of {MAX_SCORE}</div>
               </div>
+            </div>
+            {/* Band icon (SVG) instead of emoji */}
+            <div style={{ marginBottom:"0.75rem" }}>
+              <BandIcon id={band.icon} size={36} color={band.color} />
             </div>
             <h2 style={{ fontSize:"clamp(1.6rem, 5vw, 2.75rem)", color:band.color, margin:"0 0 0.75rem", fontFamily:"'Syne', sans-serif", letterSpacing:"-0.03em", fontWeight:900, lineHeight:1, textAlign:"center" }}>{band.label}</h2>
             <p style={{ color:"#94a3b8", fontSize:"1rem", maxWidth:480, lineHeight:1.6, margin:0 }}>{band.description}</p>
@@ -314,7 +258,7 @@ export default function Results({ answers, onRetake }) {
             <p style={{ color:band.color, fontSize:"0.9rem", margin:0, lineHeight:1.6 }}>💡 {band.advice}</p>
           </div>
 
-          {/* ── Radar Chart ── */}
+          {/* Radar Chart */}
           <RadarChart sectionScores={sectionScores} />
 
           {/* Section Breakdown */}
@@ -324,8 +268,10 @@ export default function Results({ answers, onRetake }) {
               {sectionScores.map(sec => (
                 <div key={sec.id}>
                   <div style={{ display:"flex", justifyContent:"space-between", marginBottom:"0.35rem" }}>
-                    <span style={{ fontSize:"0.85rem", color:"#94a3b8", display:"flex", alignItems:"center", gap:"0.4rem" }}>
-                      <span>{sec.emoji}</span>{sec.title}
+                    <span style={{ fontSize:"0.85rem", color:"#94a3b8", display:"flex", alignItems:"center", gap:"0.5rem" }}>
+                      {/* SVG icon instead of emoji */}
+                      <SectionIcon id={sec.icon} size={15} color={sec.color} />
+                      {sec.title}
                     </span>
                     <span style={{ fontSize:"0.8rem", color:"#64748b" }}>{sec.score}/{sec.maxSec}</span>
                   </div>
@@ -349,34 +295,27 @@ export default function Results({ answers, onRetake }) {
             style={{ ...btnBase, background:"linear-gradient(135deg, #6366f1, #8b5cf6)", color:"#fff", opacity: saving ? 0.7 : 1, boxShadow:"0 4px 20px rgba(99,102,241,0.35)" }}
             onMouseEnter={e => { if (!saving) { e.currentTarget.style.transform="translateY(-1px)"; e.currentTarget.style.boxShadow="0 8px 28px rgba(99,102,241,0.5)"; }}}
             onMouseLeave={e => { e.currentTarget.style.transform="translateY(0)"; e.currentTarget.style.boxShadow="0 4px 20px rgba(99,102,241,0.35)"; }}>
-            <DownloadIcon />
-            {saving ? "Saving…" : "Download"}
+            <DownloadIcon /> {saving ? "Saving…" : "Download"}
           </button>
-
           <button onClick={copyLink}
             style={{ ...btnBase, background:"rgba(255,255,255,0.06)", border:"1px solid rgba(255,255,255,0.1)", color:"#94a3b8" }}
             onMouseEnter={e => { e.currentTarget.style.background="rgba(255,255,255,0.1)"; e.currentTarget.style.color="#fff"; }}
             onMouseLeave={e => { e.currentTarget.style.background="rgba(255,255,255,0.06)"; e.currentTarget.style.color="#94a3b8"; }}>
-            <CopyIcon />
-            Copy Link
+            <CopyIcon /> Copy Link
           </button>
-
           <div style={{ width:1, height:36, background:"rgba(255,255,255,0.08)" }} />
-
           <button onClick={shareOnTwitter} title="Share on X"
             style={{ ...iconBtnBase, color:"#1d9bf0", borderColor:"rgba(29,155,240,0.25)", background:"rgba(29,155,240,0.08)" }}
             onMouseEnter={e => { e.currentTarget.style.background="rgba(29,155,240,0.18)"; e.currentTarget.style.transform="translateY(-1px)"; }}
             onMouseLeave={e => { e.currentTarget.style.background="rgba(29,155,240,0.08)"; e.currentTarget.style.transform="translateY(0)"; }}>
             <XIcon />
           </button>
-
           <button onClick={shareOnWhatsApp} title="Share on WhatsApp"
             style={{ ...iconBtnBase, color:"#25d366", borderColor:"rgba(37,211,102,0.25)", background:"rgba(37,211,102,0.08)" }}
             onMouseEnter={e => { e.currentTarget.style.background="rgba(37,211,102,0.18)"; e.currentTarget.style.transform="translateY(-1px)"; }}
             onMouseLeave={e => { e.currentTarget.style.background="rgba(37,211,102,0.08)"; e.currentTarget.style.transform="translateY(0)"; }}>
             <WhatsAppIcon />
           </button>
-
           <button onClick={shareOnFacebook} title="Share on Facebook"
             style={{ ...iconBtnBase, color:"#1877f2", borderColor:"rgba(24,119,242,0.25)", background:"rgba(24,119,242,0.08)" }}
             onMouseEnter={e => { e.currentTarget.style.background="rgba(24,119,242,0.18)"; e.currentTarget.style.transform="translateY(-1px)"; }}
@@ -424,28 +363,17 @@ export default function Results({ answers, onRetake }) {
 
       {/* 9:16 Story Poster */}
       <div ref={posterRef} style={{
-        display: "none",
-        position: "fixed",
-        top: 0, left: 0,
-        width: 405,
-        height: 720,
-        zIndex: -1,
-        flexDirection: "column",
-        background: "linear-gradient(160deg, #0a0010 0%, #0d0520 50%, #0a0010 100%)",
-        padding: "36px 32px",
-        fontFamily: "'DM Sans', sans-serif",
-        overflow: "hidden",
-        boxSizing: "border-box",
+        display:"none", position:"fixed", top:0, left:0,
+        width:405, height:720, zIndex:-1, flexDirection:"column",
+        background:"linear-gradient(160deg, #0a0010 0%, #0d0520 50%, #0a0010 100%)",
+        padding:"36px 32px", fontFamily:"'DM Sans', sans-serif", overflow:"hidden", boxSizing:"border-box",
       }}>
         <div style={{ position:"absolute", top:"20%", left:"50%", transform:"translate(-50%,-50%)", width:320, height:320, borderRadius:"50%", background:`radial-gradient(circle, ${band.color}18 0%, transparent 70%)`, pointerEvents:"none" }} />
         <div style={{ position:"absolute", bottom:"10%", right:"-10%", width:250, height:250, borderRadius:"50%", background:"radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%)", pointerEvents:"none" }} />
-
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:28, position:"relative", zIndex:1 }}>
           <span style={{ fontSize:16, fontWeight:700, color:"#fff", fontFamily:"'Syne', sans-serif", letterSpacing:"-0.02em" }}>OpenCore</span>
           <span style={{ fontSize:11, color:"#475569" }}>{dateStr}</span>
         </div>
-
-        {/* Poster score ring */}
         <div style={{ display:"flex", flexDirection:"column", alignItems:"center", marginBottom:22, position:"relative", zIndex:1 }}>
           <div style={{ position:"relative", marginBottom:16 }}>
             <svg width="140" height="140" viewBox="0 0 140 140">
@@ -453,8 +381,7 @@ export default function Results({ answers, onRetake }) {
               <circle cx="70" cy="70" r="58" fill="none" stroke={band.color} strokeWidth="9"
                 strokeDasharray={`${2 * Math.PI * 58}`}
                 strokeDashoffset={`${2 * Math.PI * 58 * (1 - pct / 100)}`}
-                strokeLinecap="round"
-                transform="rotate(-90 70 70)"
+                strokeLinecap="round" transform="rotate(-90 70 70)"
                 style={{ filter:`drop-shadow(0 0 6px ${band.color}80)` }} />
             </svg>
             <div style={{ position:"absolute", top:"50%", left:"50%", transform:"translate(-50%,-50%)", textAlign:"center" }}>
@@ -466,13 +393,12 @@ export default function Results({ answers, onRetake }) {
           <div style={{ fontSize:26, fontWeight:800, color:band.color, letterSpacing:"-0.02em", lineHeight:1, marginBottom:8, fontFamily:"'Syne', sans-serif", textAlign:"center" }}>{band.label}</div>
           <div style={{ fontSize:12, color:"#94a3b8", textAlign:"center", lineHeight:1.5, maxWidth:280 }}>{band.description}</div>
         </div>
-
-        {/* Poster section bars */}
         <div style={{ flex:1, display:"flex", flexDirection:"column", gap:9, position:"relative", zIndex:1 }}>
           <div style={{ fontSize:9, color:"#334155", textTransform:"uppercase", letterSpacing:"0.12em", marginBottom:4 }}>Section Breakdown</div>
           {sectionScores.map(sec => (
             <div key={sec.id} style={{ display:"flex", alignItems:"center", gap:8 }}>
-              <span style={{ fontSize:11, width:16, textAlign:"center", flexShrink:0 }}>{sec.emoji}</span>
+              {/* SVG icon in poster */}
+              <SectionIcon id={sec.icon} size={11} color={sec.color} style={{ flexShrink:0 }} />
               <span style={{ fontSize:8.5, color:"#64748b", width:110, flexShrink:0, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis", fontFamily:"'DM Sans', sans-serif" }}>{sec.title}</span>
               <div style={{ flex:1, height:5, background:"rgba(255,255,255,0.07)", borderRadius:3, overflow:"hidden" }}>
                 <div style={{ height:"100%", width:`${sec.pct}%`, background:sec.color, borderRadius:3 }} />
@@ -481,8 +407,6 @@ export default function Results({ answers, onRetake }) {
             </div>
           ))}
         </div>
-
-        {/* Poster footer */}
         <div style={{ marginTop:20, paddingTop:14, borderTop:"1px solid rgba(255,255,255,0.07)", display:"flex", justifyContent:"space-between", alignItems:"center", position:"relative", zIndex:1 }}>
           <span style={{ fontSize:9, color:"#334155" }}>tryopencore.vercel.app</span>
           <span style={{ fontSize:9, color:"#334155" }}>Not a clinical diagnosis</span>
@@ -492,36 +416,28 @@ export default function Results({ answers, onRetake }) {
   );
 }
 
-// ── Icons ──
-
+// ── App Icons ──
 function DownloadIcon() {
   return (
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
-      <polyline points="7 10 12 15 17 10"/>
-      <line x1="12" y1="15" x2="12" y2="3"/>
+      <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
     </svg>
   );
 }
-
 function CopyIcon() {
   return (
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
-      <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
     </svg>
   );
 }
-
 function RetakeIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="23 4 23 10 17 10"/>
-      <path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/>
+      <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/>
     </svg>
   );
 }
-
 function XIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -529,7 +445,6 @@ function XIcon() {
     </svg>
   );
 }
-
 function WhatsAppIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -537,7 +452,6 @@ function WhatsAppIcon() {
     </svg>
   );
 }
-
 function FacebookIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
