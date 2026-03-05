@@ -53,20 +53,20 @@ export default function Results({ answers, onRetake }) {
   }
 
   function getShareText() {
-  return `I just completed the OpenCore Mental Health Assessment.\nResult: ${band.label} (${totalScore}/${MAX_SCORE})\nTake yours: ${SITE_URL}`;
-}
+    return `I just completed the OpenCore Mental Health Assessment.\nResult: ${band.label} (${totalScore}/${MAX_SCORE})\nTake yours: ${SITE_URL}`;
+  }
 
-function shareOnTwitter() {
-  window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(getShareText())}`, "_blank");
-}
+  function shareOnTwitter() {
+    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(getShareText())}`, "_blank");
+  }
 
-function shareOnWhatsApp() {
-  window.open(`https://wa.me/?text=${encodeURIComponent(getShareText())}`, "_blank");
-}
+  function shareOnWhatsApp() {
+    window.open(`https://wa.me/?text=${encodeURIComponent(getShareText())}`, "_blank");
+  }
 
-function shareOnFacebook() {
-  window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(SITE_URL)}`, "_blank");
-}
+  function shareOnFacebook() {
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(SITE_URL)}`, "_blank");
+  }
 
   function copyLink() {
     navigator.clipboard.writeText(SITE_URL);
@@ -105,11 +105,12 @@ function shareOnFacebook() {
               <span style={{ fontSize:"1.1rem", fontWeight:700, color:"#fff", fontFamily:"'Syne', sans-serif" }}>OpenCore</span>
             </div>
           </div>
+          {/* CHANGED: "Retake Assessment" → "Retake" */}
           <button onClick={onRetake}
             style={{ ...btnBase, background:"rgba(255,255,255,0.06)", border:"1px solid rgba(255,255,255,0.1)", color:"#94a3b8", padding:"0.5rem 1rem", fontSize:"0.82rem" }}
             onMouseEnter={e => e.currentTarget.style.background="rgba(255,255,255,0.1)"}
             onMouseLeave={e => e.currentTarget.style.background="rgba(255,255,255,0.06)"}>
-            <RetakeIcon /> Retake Assessment
+            <RetakeIcon /> Retake
           </button>
         </div>
 
@@ -134,7 +135,8 @@ function shareOnFacebook() {
                 <div style={{ fontSize:"0.72rem", color:"#475569" }}>out of {MAX_SCORE}</div>
               </div>
             </div>
-            <h2 style={{ fontSize:"2.75rem", color:band.color, margin:"0 0 0.75rem", fontFamily:"'Syne', sans-serif", letterSpacing:"-0.03em", fontWeight:900, lineHeight:1 }}>{band.emoji} {band.label}</h2>
+            {/* CHANGED: removed {band.emoji}, added textAlign center, responsive font size */}
+            <h2 style={{ fontSize:"clamp(1.6rem, 5vw, 2.75rem)", color:band.color, margin:"0 0 0.75rem", fontFamily:"'Syne', sans-serif", letterSpacing:"-0.03em", fontWeight:900, lineHeight:1, textAlign:"center" }}>{band.label}</h2>
             <p style={{ color:"#94a3b8", fontSize:"1rem", maxWidth:480, lineHeight:1.6, margin:0 }}>{band.description}</p>
           </div>
 
@@ -270,9 +272,9 @@ function shareOnFacebook() {
         <div style={{ position:"absolute", bottom:"10%", right:"-10%", width:250, height:250, borderRadius:"50%", background:"radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%)", pointerEvents:"none" }} />
 
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:28, position:"relative", zIndex:1 }}>
-  <span style={{ fontSize:16, fontWeight:700, color:"#fff", fontFamily:"'Syne', sans-serif", letterSpacing:"-0.02em" }}>OpenCore</span>
-  <span style={{ fontSize:11, color:"#475569" }}>{dateStr}</span>
-</div>
+          <span style={{ fontSize:16, fontWeight:700, color:"#fff", fontFamily:"'Syne', sans-serif", letterSpacing:"-0.02em" }}>OpenCore</span>
+          <span style={{ fontSize:11, color:"#475569" }}>{dateStr}</span>
+        </div>
 
         {/* Poster score ring */}
         <div style={{ display:"flex", flexDirection:"column", alignItems:"center", marginBottom:22, position:"relative", zIndex:1 }}>
@@ -292,7 +294,8 @@ function shareOnFacebook() {
             </div>
           </div>
           <div style={{ fontSize:10, color:"#475569", textTransform:"uppercase", letterSpacing:"0.12em", marginBottom:8 }}>Mental Wellbeing Score</div>
-          <div style={{ fontSize:26, fontWeight:800, color:band.color, letterSpacing:"-0.02em", lineHeight:1, marginBottom:8, fontFamily:"'Syne', sans-serif" }}>{band.label}</div>
+          {/* CHANGED: added textAlign:"center" */}
+          <div style={{ fontSize:26, fontWeight:800, color:band.color, letterSpacing:"-0.02em", lineHeight:1, marginBottom:8, fontFamily:"'Syne', sans-serif", textAlign:"center" }}>{band.label}</div>
           <div style={{ fontSize:12, color:"#94a3b8", textAlign:"center", lineHeight:1.5, maxWidth:280 }}>{band.description}</div>
         </div>
 
@@ -300,15 +303,15 @@ function shareOnFacebook() {
         <div style={{ flex:1, display:"flex", flexDirection:"column", gap:9, position:"relative", zIndex:1 }}>
           <div style={{ fontSize:9, color:"#334155", textTransform:"uppercase", letterSpacing:"0.12em", marginBottom:4 }}>Section Breakdown</div>
           {sectionScores.map(sec => (
-  <div key={sec.id} style={{ display:"flex", alignItems:"center", gap:8 }}>
-    <span style={{ fontSize:11, width:16, textAlign:"center", flexShrink:0 }}>{sec.emoji}</span>
-    <span style={{ fontSize:8.5, color:"#64748b", width:110, flexShrink:0, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis", fontFamily:"'DM Sans', sans-serif" }}>{sec.title}</span>
-    <div style={{ flex:1, height:5, background:"rgba(255,255,255,0.07)", borderRadius:3, overflow:"hidden" }}>
-      <div style={{ height:"100%", width:`${sec.pct}%`, background:sec.color, borderRadius:3 }} />
-    </div>
-    <span style={{ fontSize:10, color:sec.color, width:28, textAlign:"right", fontWeight:600, flexShrink:0 }}>{sec.pct}%</span>
-  </div>
-))}
+            <div key={sec.id} style={{ display:"flex", alignItems:"center", gap:8 }}>
+              <span style={{ fontSize:11, width:16, textAlign:"center", flexShrink:0 }}>{sec.emoji}</span>
+              <span style={{ fontSize:8.5, color:"#64748b", width:110, flexShrink:0, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis", fontFamily:"'DM Sans', sans-serif" }}>{sec.title}</span>
+              <div style={{ flex:1, height:5, background:"rgba(255,255,255,0.07)", borderRadius:3, overflow:"hidden" }}>
+                <div style={{ height:"100%", width:`${sec.pct}%`, background:sec.color, borderRadius:3 }} />
+              </div>
+              <span style={{ fontSize:10, color:sec.color, width:28, textAlign:"right", fontWeight:600, flexShrink:0 }}>{sec.pct}%</span>
+            </div>
+          ))}
         </div>
 
         {/* Poster footer */}
