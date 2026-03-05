@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { getAllQuestions, ANSWERS, SECTIONS } from '../data/questions';
@@ -15,6 +15,7 @@ export default function Assessment() {
   const [animKey, setAnimKey] = useState(0);
   const [selected, setSelected] = useState(null);
   const [transitioning, setTransitioning] = useState(false);
+  const autoAdvanceTimer = useRef(null);
 
   const question = ALL_QUESTIONS[currentIdx];
   const progress = (currentIdx / TOTAL) * 100;
@@ -25,9 +26,17 @@ export default function Assessment() {
     setSelected(answers[question.id] ?? null);
   }, [currentIdx, answers, question.id]);
 
-  const goNext = useCallback(() => {
-    if (selected === null) return;
-    const newAnswers = { ...answers, [question.id]: selected };
+  // Clean up timer on unmount
+  useEffect(() => {
+    return () => {
+      if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current);
+    };
+  }, []);
+
+  const goNext = useCallback((scoreOverride) => {
+    const scoreToUse = scoreOverride !== undefined ? scoreOverride : selected;
+    if (scoreToUse === null) return;
+    const newAnswers = { ...answers, [question.id]: scoreToUse };
     setAnswers(newAnswers);
 
     if (currentIdx === TOTAL - 1) {
@@ -47,6 +56,7 @@ export default function Assessment() {
   }, [selected, answers, question.id, currentIdx, router]);
 
   const goPrev = useCallback(() => {
+    if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current);
     if (currentIdx === 0) return;
     setTransitioning(true);
     setAnimDir('left');
@@ -57,19 +67,30 @@ export default function Assessment() {
     }, 180);
   }, [currentIdx]);
 
+  // Handle answer selection with auto-advance
+  const handleAnswerSelect = useCallback((score) => {
+    // Clear any pending auto-advance timer (user changed answer quickly)
+    if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current);
+    setSelected(score);
+    // Auto-advance after 400ms
+    autoAdvanceTimer.current = setTimeout(() => {
+      goNext(score);
+    }, 400);
+  }, [goNext]);
+
   // Keyboard nav
   useEffect(() => {
     function handleKey(e) {
-      if (e.key === '1') setSelected(0);
-      if (e.key === '2') setSelected(1);
-      if (e.key === '3') setSelected(2);
-      if (e.key === '4') setSelected(3);
+      if (e.key === '1') handleAnswerSelect(0);
+      if (e.key === '2') handleAnswerSelect(1);
+      if (e.key === '3') handleAnswerSelect(2);
+      if (e.key === '4') handleAnswerSelect(3);
       if (e.key === 'Enter' && selected !== null) goNext();
       if (e.key === 'ArrowLeft') goPrev();
     }
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  }, [selected, goNext, goPrev]);
+  }, [selected, goNext, goPrev, handleAnswerSelect]);
 
   const sectionProgress = getSectionProgress(currentIdx);
 
@@ -151,7 +172,7 @@ export default function Assessment() {
                   key={ans.score}
                   className={`${styles.answerBtn} ${selected === ans.score ? styles.answerSelected : ''}`}
                   style={selected === ans.score ? { '--sel-color': currentSection?.color } : {}}
-                  onClick={() => setSelected(ans.score)}
+                  onClick={() => handleAnswerSelect(ans.score)}
                 >
                   <div className={styles.answerInner}>
                     <div className={styles.answerNum}>{i + 1}</div>
@@ -180,7 +201,7 @@ export default function Assessment() {
 
               <button
                 className={`${styles.nextBtn} ${selected === null ? styles.nextDisabled : ''}`}
-                onClick={goNext}
+                onClick={() => goNext()}
                 disabled={selected === null}
                 style={selected !== null ? { background: `linear-gradient(135deg, #7c6fcd, ${currentSection?.color || '#6366f1'})` } : {}}
               >
@@ -190,7 +211,7 @@ export default function Assessment() {
             </div>
 
             <p className={styles.keyHint}>
-              Press <kbd>1–4</kbd> to select · <kbd>Enter</kbd> to continue
+              Press <kbd>1–4</kbd> to select · auto-advances in 0.4s
             </p>
           </div>
         </main>

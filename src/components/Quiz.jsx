@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ALL_QUESTIONS, ANSWER_OPTIONS, SECTIONS } from "../data/questions";
 
 export default function Quiz({ onComplete, onBack }) {
@@ -7,6 +7,7 @@ export default function Quiz({ onComplete, onBack }) {
   const [animating, setAnimating] = useState(false);
   const [direction, setDirection] = useState(1);
   const [selected, setSelected] = useState(null);
+  const autoAdvanceTimer = useRef(null);
 
   const question = ALL_QUESTIONS[currentIdx];
   const total = ALL_QUESTIONS.length;
@@ -17,13 +18,10 @@ export default function Quiz({ onComplete, onBack }) {
     setSelected(answers[question.id] ?? null);
   }, [currentIdx, question.id, answers]);
 
-  function handleSelect(score) {
-    setSelected(score);
-  }
-
-  function handleNext() {
-    if (selected === null) return;
-    const newAnswers = { ...answers, [question.id]: selected };
+  function handleNext(scoreOverride) {
+    const scoreToUse = scoreOverride !== undefined ? scoreOverride : selected;
+    if (scoreToUse === null) return;
+    const newAnswers = { ...answers, [question.id]: scoreToUse };
     setAnswers(newAnswers);
     if (currentIdx === total - 1) {
       onComplete(newAnswers);
@@ -37,7 +35,25 @@ export default function Quiz({ onComplete, onBack }) {
     }, 300);
   }
 
+  function handleSelect(score) {
+    // Clear any pending auto-advance (e.g. user changed answer quickly)
+    if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current);
+    setSelected(score);
+    // Auto-advance after 400ms
+    autoAdvanceTimer.current = setTimeout(() => {
+      handleNext(score);
+    }, 400);
+  }
+
+  // Clean up timer on unmount
+  useEffect(() => {
+    return () => {
+      if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current);
+    };
+  }, []);
+
   function handleBack() {
+    if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current);
     if (currentIdx === 0) { onBack(); return; }
     setDirection(-1);
     setAnimating(true);
@@ -191,7 +207,7 @@ export default function Quiz({ onComplete, onBack }) {
               Previous
             </button>
 
-            <button onClick={handleNext}
+            <button onClick={() => handleNext()}
               disabled={selected === null}
               style={{
                 display:"flex", alignItems:"center", gap:"0.5rem",
@@ -217,9 +233,7 @@ export default function Quiz({ onComplete, onBack }) {
           <p style={{ textAlign:"center", fontSize:"0.72rem", color:"#475569", margin:"0 0 0.4rem" }}>
             Press{" "}
             <kbd style={{ padding:"1px 5px", border:"1px solid #475569", borderRadius:4, fontSize:"0.68rem", fontFamily:"monospace" }}>1–4</kbd>
-            {" "}to select ·{" "}
-            <kbd style={{ padding:"1px 5px", border:"1px solid #475569", borderRadius:4, fontSize:"0.68rem", fontFamily:"monospace" }}>Enter</kbd>
-            {" "}to continue
+            {" "}to select · auto-advances in 0.4s
           </p>
           <p style={{ textAlign:"center", fontSize:"0.72rem", color:"#475569", margin:0 }}>
         All questions are based on your activities in the <strong style={{ fontWeight:500, color:"#475569" }}>last 30 days</strong>
