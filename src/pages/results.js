@@ -6,6 +6,167 @@ import styles from '../styles/Results.module.css';
 
 const ALL_QUESTIONS = getAllQuestions();
 
+// ── Radar / Spider Chart ──
+function RadarChart({ sectionScores }) {
+  const [hoveredIdx, setHoveredIdx] = useState(null);
+  const size = 300;
+  const cx = size / 2;
+  const cy = size / 2;
+  const maxR = 110;
+  const n = sectionScores.length;
+  const levels = 5;
+
+  function angle(i) {
+    return (Math.PI * 2 * i) / n - Math.PI / 2;
+  }
+
+  function point(i, fraction) {
+    const a = angle(i);
+    return {
+      x: cx + maxR * fraction * Math.cos(a),
+      y: cy + maxR * fraction * Math.sin(a),
+    };
+  }
+
+  function polygonPoints(fractions) {
+    return fractions.map((f, i) => {
+      const p = point(i, f);
+      return `${p.x},${p.y}`;
+    }).join(' ');
+  }
+
+  const gridPolygons = Array.from({ length: levels }, (_, lvl) => {
+    const f = (lvl + 1) / levels;
+    return polygonPoints(Array(n).fill(f));
+  });
+
+  const dataFractions = sectionScores.map(s => s.pct / 100);
+  const dataPoints = polygonPoints(dataFractions);
+
+  return (
+    <div className={styles.radarWrap}>
+      <div className={styles.radarTitle}>Dimension Map</div>
+      <svg
+        width={size}
+        height={size}
+        viewBox={`0 0 ${size} ${size}`}
+        style={{ overflow: 'visible', maxWidth: '100%' }}
+      >
+        <defs>
+          {sectionScores.map((sec, i) => (
+            <filter key={`glow-${i}`} id={`radar-glow-${i}`} x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="3" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          ))}
+        </defs>
+
+        {/* Grid polygons */}
+        {gridPolygons.map((pts, lvl) => (
+          <polygon
+            key={lvl}
+            points={pts}
+            fill="none"
+            stroke="rgba(255,255,255,0.07)"
+            strokeWidth="1"
+          />
+        ))}
+
+        {/* Axis lines */}
+        {sectionScores.map((_, i) => {
+          const outer = point(i, 1);
+          return (
+            <line
+              key={i}
+              x1={cx} y1={cy}
+              x2={outer.x} y2={outer.y}
+              stroke="rgba(255,255,255,0.06)"
+              strokeWidth="1"
+            />
+          );
+        })}
+
+        {/* Data polygon */}
+        <polygon
+          points={dataPoints}
+          fill="rgba(99,102,241,0.12)"
+          stroke="rgba(99,102,241,0.5)"
+          strokeWidth="1.5"
+          strokeLinejoin="round"
+        />
+
+        {/* Axis labels (emoji) */}
+        {sectionScores.map((sec, i) => {
+          const labelR = maxR + 22;
+          const a = angle(i);
+          const lx = cx + labelR * Math.cos(a);
+          const ly = cy + labelR * Math.sin(a);
+          return (
+            <text
+              key={i}
+              x={lx}
+              y={ly}
+              textAnchor="middle"
+              dominantBaseline="central"
+              fontSize="16"
+              style={{ userSelect: 'none' }}
+            >
+              {sec.emoji}
+            </text>
+          );
+        })}
+
+        {/* Data dots — colored per section */}
+        {sectionScores.map((sec, i) => {
+          const p = point(i, dataFractions[i]);
+          const isHovered = hoveredIdx === i;
+          return (
+            <g key={i}>
+              <title>{sec.title}: {sec.pct}%</title>
+              {isHovered && (
+                <circle
+                  cx={p.x} cy={p.y}
+                  r={10}
+                  fill={`${sec.color}25`}
+                  stroke={`${sec.color}60`}
+                  strokeWidth="1"
+                />
+              )}
+              <circle
+                cx={p.x} cy={p.y}
+                r={isHovered ? 6 : 4}
+                fill={sec.color}
+                stroke={`${sec.color}80`}
+                strokeWidth="2"
+                filter={`url(#radar-glow-${i})`}
+                style={{ cursor: 'default', transition: 'r 0.15s ease' }}
+                onMouseEnter={() => setHoveredIdx(i)}
+                onMouseLeave={() => setHoveredIdx(null)}
+              />
+              {isHovered && (
+                <text
+                  x={p.x}
+                  y={p.y - 12}
+                  textAnchor="middle"
+                  fontSize="10"
+                  fontWeight="700"
+                  fill={sec.color}
+                  style={{ pointerEvents: 'none', fontFamily: "'DM Sans', sans-serif" }}
+                >
+                  {sec.pct}%
+                </text>
+              )}
+            </g>
+          );
+        })}
+      </svg>
+    </div>
+  );
+}
+
 export default function Results() {
   const router = useRouter();
   const [answers, setAnswers] = useState(null);
@@ -176,6 +337,9 @@ export default function Results() {
                 <p className={styles.bandAdvice}>{band.advice}</p>
               </div>
             </div>
+
+            {/* ── Radar Chart ── */}
+            <RadarChart sectionScores={sectionScores} />
 
             {/* Section breakdown */}
             <div className={styles.breakdownTitle}>Section Breakdown</div>

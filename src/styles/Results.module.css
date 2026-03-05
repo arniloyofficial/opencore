@@ -233,6 +233,28 @@
   line-height: 1.6;
 }
 
+/* Radar Chart */
+.radarWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 32px;
+  padding: 24px 0 8px;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  animation: fadeInUp 0.6s 0.1s ease both;
+}
+
+.radarTitle {
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+
 /* Breakdown */
 .breakdownTitle {
   font-family: 'Syne', sans-serif;

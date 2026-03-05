@@ -12,6 +12,176 @@ const BD_RESOURCES = [
 
 const SITE_URL = "https://tryopencore.vercel.app/";
 
+// ── Radar / Spider Chart ──
+function RadarChart({ sectionScores }) {
+  const [hoveredIdx, setHoveredIdx] = useState(null);
+  const size = 300;
+  const cx = size / 2;
+  const cy = size / 2;
+  const maxR = 110;
+  const n = sectionScores.length;
+  const levels = 5;
+
+  // angle for each axis (start from top, go clockwise)
+  function angle(i) {
+    return (Math.PI * 2 * i) / n - Math.PI / 2;
+  }
+
+  // point on the chart for a given axis index and radius fraction (0–1)
+  function point(i, fraction) {
+    const a = angle(i);
+    return {
+      x: cx + maxR * fraction * Math.cos(a),
+      y: cy + maxR * fraction * Math.sin(a),
+    };
+  }
+
+  // build polygon points string
+  function polygonPoints(fractions) {
+    return fractions.map((f, i) => {
+      const p = point(i, f);
+      return `${p.x},${p.y}`;
+    }).join(" ");
+  }
+
+  // grid level polygons
+  const gridPolygons = Array.from({ length: levels }, (_, lvl) => {
+    const f = (lvl + 1) / levels;
+    return polygonPoints(Array(n).fill(f));
+  });
+
+  // data polygon
+  const dataFractions = sectionScores.map(s => s.pct / 100);
+  const dataPoints = polygonPoints(dataFractions);
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: "2rem" }}>
+      <div style={{ fontSize: "0.72rem", color: "#475569", textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: "1rem" }}>
+        Dimension Map
+      </div>
+      <svg
+        width={size}
+        height={size}
+        viewBox={`0 0 ${size} ${size}`}
+        style={{ overflow: "visible", maxWidth: "100%" }}
+      >
+        <defs>
+          {sectionScores.map((sec, i) => (
+            <filter key={`glow-${i}`} id={`glow-${i}`} x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="3" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          ))}
+        </defs>
+
+        {/* Grid polygons */}
+        {gridPolygons.map((pts, lvl) => (
+          <polygon
+            key={lvl}
+            points={pts}
+            fill="none"
+            stroke="rgba(255,255,255,0.07)"
+            strokeWidth="1"
+          />
+        ))}
+
+        {/* Axis lines */}
+        {sectionScores.map((_, i) => {
+          const outer = point(i, 1);
+          return (
+            <line
+              key={i}
+              x1={cx} y1={cy}
+              x2={outer.x} y2={outer.y}
+              stroke="rgba(255,255,255,0.06)"
+              strokeWidth="1"
+            />
+          );
+        })}
+
+        {/* Data polygon fill */}
+        <polygon
+          points={dataPoints}
+          fill="rgba(99,102,241,0.12)"
+          stroke="rgba(99,102,241,0.5)"
+          strokeWidth="1.5"
+          strokeLinejoin="round"
+        />
+
+        {/* Axis labels (emoji) */}
+        {sectionScores.map((sec, i) => {
+          const labelR = maxR + 22;
+          const a = angle(i);
+          const lx = cx + labelR * Math.cos(a);
+          const ly = cy + labelR * Math.sin(a);
+          return (
+            <text
+              key={i}
+              x={lx}
+              y={ly}
+              textAnchor="middle"
+              dominantBaseline="central"
+              fontSize="16"
+              style={{ userSelect: "none" }}
+            >
+              {sec.emoji}
+            </text>
+          );
+        })}
+
+        {/* Data dots — colored per section */}
+        {sectionScores.map((sec, i) => {
+          const p = point(i, dataFractions[i]);
+          const isHovered = hoveredIdx === i;
+          return (
+            <g key={i}>
+              <title>{sec.title}: {sec.pct}%</title>
+              {/* Outer glow ring when hovered */}
+              {isHovered && (
+                <circle
+                  cx={p.x} cy={p.y}
+                  r={10}
+                  fill={`${sec.color}25`}
+                  stroke={`${sec.color}60`}
+                  strokeWidth="1"
+                />
+              )}
+              <circle
+                cx={p.x} cy={p.y}
+                r={isHovered ? 6 : 4}
+                fill={sec.color}
+                stroke={`${sec.color}80`}
+                strokeWidth="2"
+                filter={`url(#glow-${i})`}
+                style={{ cursor: "default", transition: "r 0.15s ease" }}
+                onMouseEnter={() => setHoveredIdx(i)}
+                onMouseLeave={() => setHoveredIdx(null)}
+              />
+              {/* Percentage label on hover */}
+              {isHovered && (
+                <text
+                  x={p.x}
+                  y={p.y - 12}
+                  textAnchor="middle"
+                  fontSize="10"
+                  fontWeight="700"
+                  fill={sec.color}
+                  style={{ pointerEvents: "none", fontFamily: "'DM Sans', sans-serif" }}
+                >
+                  {sec.pct}%
+                </text>
+              )}
+            </g>
+          );
+        })}
+      </svg>
+    </div>
+  );
+}
+
 export default function Results({ answers, onRetake }) {
   const posterRef = useRef(null);
   const [saving, setSaving] = useState(false);
@@ -105,7 +275,6 @@ export default function Results({ answers, onRetake }) {
               <span style={{ fontSize:"1.1rem", fontWeight:700, color:"#fff", fontFamily:"'Syne', sans-serif" }}>OpenCore</span>
             </div>
           </div>
-          {/* CHANGED: "Retake Assessment" → "Retake" */}
           <button onClick={onRetake}
             style={{ ...btnBase, background:"rgba(255,255,255,0.06)", border:"1px solid rgba(255,255,255,0.1)", color:"#94a3b8", padding:"0.5rem 1rem", fontSize:"0.82rem" }}
             onMouseEnter={e => e.currentTarget.style.background="rgba(255,255,255,0.1)"}
@@ -118,6 +287,7 @@ export default function Results({ answers, onRetake }) {
         <div style={{ background:"linear-gradient(135deg, #0d1117 0%, #0f172a 100%)", borderRadius:24, padding:"2.5rem", border:"1px solid rgba(255,255,255,0.07)", marginBottom:"1.5rem", position:"relative", overflow:"hidden" }}>
           <div style={{ position:"absolute", top:-100, right:-100, width:300, height:300, borderRadius:"50%", background:`radial-gradient(circle, ${band.color}12 0%, transparent 70%)`, pointerEvents:"none" }} />
 
+          {/* Score hero */}
           <div style={{ display:"flex", flexDirection:"column", alignItems:"center", marginBottom:"2.5rem", textAlign:"center" }}>
             <div style={{ fontSize:"0.72rem", color:"#475569", textTransform:"uppercase", letterSpacing:"0.15em", marginBottom:"1rem" }}>Your Result</div>
             <div style={{ position:"relative", marginBottom:"1.5rem" }}>
@@ -135,15 +305,19 @@ export default function Results({ answers, onRetake }) {
                 <div style={{ fontSize:"0.72rem", color:"#475569" }}>out of {MAX_SCORE}</div>
               </div>
             </div>
-            {/* CHANGED: removed {band.emoji}, added textAlign center, responsive font size */}
             <h2 style={{ fontSize:"clamp(1.6rem, 5vw, 2.75rem)", color:band.color, margin:"0 0 0.75rem", fontFamily:"'Syne', sans-serif", letterSpacing:"-0.03em", fontWeight:900, lineHeight:1, textAlign:"center" }}>{band.label}</h2>
             <p style={{ color:"#94a3b8", fontSize:"1rem", maxWidth:480, lineHeight:1.6, margin:0 }}>{band.description}</p>
           </div>
 
+          {/* Advice box */}
           <div style={{ background:`${band.color}10`, border:`1px solid ${band.color}25`, borderRadius:14, padding:"1.25rem 1.5rem", marginBottom:"2rem" }}>
             <p style={{ color:band.color, fontSize:"0.9rem", margin:0, lineHeight:1.6 }}>💡 {band.advice}</p>
           </div>
 
+          {/* ── Radar Chart ── */}
+          <RadarChart sectionScores={sectionScores} />
+
+          {/* Section Breakdown */}
           <div>
             <div style={{ fontSize:"0.72rem", color:"#475569", textTransform:"uppercase", letterSpacing:"0.12em", marginBottom:"1.25rem" }}>Section Breakdown</div>
             <div style={{ display:"grid", gap:"0.875rem" }}>
@@ -169,10 +343,8 @@ export default function Results({ answers, onRetake }) {
           </div>
         </div>
 
-        {/* Action buttons — centered */}
+        {/* Action buttons */}
         <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:"0.75rem", marginBottom:"1.5rem", flexWrap:"wrap" }}>
-
-          {/* Download button */}
           <button onClick={saveAsJpg} disabled={saving}
             style={{ ...btnBase, background:"linear-gradient(135deg, #6366f1, #8b5cf6)", color:"#fff", opacity: saving ? 0.7 : 1, boxShadow:"0 4px 20px rgba(99,102,241,0.35)" }}
             onMouseEnter={e => { if (!saving) { e.currentTarget.style.transform="translateY(-1px)"; e.currentTarget.style.boxShadow="0 8px 28px rgba(99,102,241,0.5)"; }}}
@@ -181,7 +353,6 @@ export default function Results({ answers, onRetake }) {
             {saving ? "Saving…" : "Download"}
           </button>
 
-          {/* Copy link button */}
           <button onClick={copyLink}
             style={{ ...btnBase, background:"rgba(255,255,255,0.06)", border:"1px solid rgba(255,255,255,0.1)", color:"#94a3b8" }}
             onMouseEnter={e => { e.currentTarget.style.background="rgba(255,255,255,0.1)"; e.currentTarget.style.color="#fff"; }}
@@ -190,10 +361,8 @@ export default function Results({ answers, onRetake }) {
             Copy Link
           </button>
 
-          {/* Divider */}
           <div style={{ width:1, height:36, background:"rgba(255,255,255,0.08)" }} />
 
-          {/* Social icon-only buttons */}
           <button onClick={shareOnTwitter} title="Share on X"
             style={{ ...iconBtnBase, color:"#1d9bf0", borderColor:"rgba(29,155,240,0.25)", background:"rgba(29,155,240,0.08)" }}
             onMouseEnter={e => { e.currentTarget.style.background="rgba(29,155,240,0.18)"; e.currentTarget.style.transform="translateY(-1px)"; }}
@@ -294,7 +463,6 @@ export default function Results({ answers, onRetake }) {
             </div>
           </div>
           <div style={{ fontSize:10, color:"#475569", textTransform:"uppercase", letterSpacing:"0.12em", marginBottom:8 }}>Mental Wellbeing Score</div>
-          {/* CHANGED: added textAlign:"center" */}
           <div style={{ fontSize:26, fontWeight:800, color:band.color, letterSpacing:"-0.02em", lineHeight:1, marginBottom:8, fontFamily:"'Syne', sans-serif", textAlign:"center" }}>{band.label}</div>
           <div style={{ fontSize:12, color:"#94a3b8", textAlign:"center", lineHeight:1.5, maxWidth:280 }}>{band.description}</div>
         </div>
