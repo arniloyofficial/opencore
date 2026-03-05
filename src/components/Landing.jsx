@@ -1,10 +1,21 @@
 import { useState, useEffect } from "react";
+import { SectionIcon } from "./SectionIcons";
 
 export default function Landing({ onStart }) {
   const [visible, setVisible] = useState(false);
   useEffect(() => { setTimeout(() => setVisible(true), 100); }, []);
 
-  const sections = [["🧠","Depression","#6366f1"],["😰","Anxiety","#f59e0b"],["😴","Sleep","#8b5cf6"],["🤝","Social","#10b981"],["🧩","Focus","#3b82f6"],["🌊","Emotions","#06b6d4"],["💆","Stress","#f97316"],["🌟","Purpose","#ec4899"]];
+  // [iconId, label, color]
+  const sections = [
+    ["depression", "Depression", "#6366f1"],
+    ["anxiety",    "Anxiety",    "#f59e0b"],
+    ["sleep",      "Sleep",      "#8b5cf6"],
+    ["social",     "Social",     "#10b981"],
+    ["focus",      "Focus",      "#3b82f6"],
+    ["emotion",    "Emotions",   "#06b6d4"],
+    ["stress",     "Stress",     "#f97316"],
+    ["selfworth",  "Purpose",    "#ec4899"],
+  ];
   const stats = [["60","Questions"],["8","Dimensions"],["10min","To Complete"],["Free","Always"]];
 
   return (
@@ -86,14 +97,15 @@ export default function Landing({ onStart }) {
         </button>
       </div>
 
-      {/* Section pills — left aligned, with colored hover */}
+      {/* Section pills — SVG icons instead of emojis */}
       <div style={{ opacity:visible?1:0, transition:"all 1s ease 0.5s", marginTop:"3.5rem", display:"flex", gap:"0.6rem", flexWrap:"wrap", justifyContent:"flex-start", maxWidth:640, width:"100%" }}>
-        {sections.map(([emoji, label, color]) => (
+        {sections.map(([iconId, label, color]) => (
           <div key={label}
             className="section-pill"
             style={{ "--pill-color": color }}
           >
-            <span>{emoji}</span><span>{label}</span>
+            <SectionIcon id={iconId} size={13} color="currentColor" />
+            <span>{label}</span>
           </div>
         ))}
       </div>
@@ -141,6 +153,9 @@ export default function Landing({ onStart }) {
           color: var(--pill-color);
           background: rgba(255,255,255,0.06);
           box-shadow: 0 0 12px color-mix(in srgb, var(--pill-color) 20%, transparent);
+        }
+        .section-pill:hover svg {
+          stroke: var(--pill-color);
         }
         @media (max-width: 480px) {
           .disclaimer-text {

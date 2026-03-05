@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
+import { SectionIcon } from '../components/SectionIcons';
 import styles from '../styles/Home.module.css';
 
 export default function Home() {
@@ -71,8 +72,13 @@ export default function Home() {
             {/* Dimension pills */}
             <div className={styles.dimensions} style={{ animationDelay: '420ms' }}>
               {DIMS.map((d, i) => (
-                <div key={i} className={styles.dimPill} style={{ '--color': d.color, animationDelay: `${420 + i * 50}ms` }}>
-                  <span>{d.emoji}</span>
+                <div
+                  key={i}
+                  className={styles.dimPill}
+                  style={{ '--color': d.color, animationDelay: `${420 + i * 50}ms` }}
+                >
+                  {/* SVG icon instead of emoji */}
+                  <SectionIcon id={d.icon} size={13} color={d.color} />
                   <span>{d.label}</span>
                 </div>
               ))}
@@ -93,15 +99,16 @@ export default function Home() {
   );
 }
 
+// icon IDs map to the SectionIcon component in SectionIcons.jsx
 const DIMS = [
-  { emoji: '🧠', label: 'Depression', color: '#6366f1' },
-  { emoji: '😰', label: 'Anxiety', color: '#f59e0b' },
-  { emoji: '😴', label: 'Sleep & Energy', color: '#8b5cf6' },
-  { emoji: '🤝', label: 'Social', color: '#ec4899' },
-  { emoji: '🧩', label: 'Focus', color: '#14b8a6' },
-  { emoji: '🌊', label: 'Emotions', color: '#0ea5e9' },
-  { emoji: '💆', label: 'Stress', color: '#f97316' },
-  { emoji: '🌟', label: 'Self-Worth', color: '#84cc16' },
+  { icon: 'depression', label: 'Depression',  color: '#6366f1' },
+  { icon: 'anxiety',    label: 'Anxiety',     color: '#f59e0b' },
+  { icon: 'sleep',      label: 'Sleep & Energy', color: '#8b5cf6' },
+  { icon: 'social',     label: 'Social',      color: '#ec4899' },
+  { icon: 'focus',      label: 'Focus',       color: '#14b8a6' },
+  { icon: 'emotion',    label: 'Emotions',    color: '#0ea5e9' },
+  { icon: 'stress',     label: 'Stress',      color: '#f97316' },
+  { icon: 'selfworth',  label: 'Self-Worth',  color: '#84cc16' },
 ];
 
 function ArrowIcon() {
