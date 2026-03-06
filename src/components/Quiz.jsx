@@ -14,7 +14,6 @@ function ExitWarningDialog({ answeredCount, totalCount, onConfirm, onCancel }) {
   const pct = Math.round((answeredCount / totalCount) * 100);
 
   return (
-    // Backdrop
     <div
       onClick={onCancel}
       style={{
@@ -28,7 +27,6 @@ function ExitWarningDialog({ answeredCount, totalCount, onConfirm, onCancel }) {
         fontFamily: "'DM Sans', sans-serif",
       }}
     >
-      {/* Dialog card — stop propagation so clicking inside doesn't dismiss */}
       <div
         onClick={e => e.stopPropagation()}
         style={{
@@ -43,7 +41,6 @@ function ExitWarningDialog({ answeredCount, totalCount, onConfirm, onCancel }) {
           transition: "transform 0.25s ease",
         }}
       >
-        {/* Warning icon */}
         <div style={{
           width: 52, height: 52, borderRadius: "50%",
           background: "rgba(251,146,60,0.12)",
@@ -59,7 +56,6 @@ function ExitWarningDialog({ answeredCount, totalCount, onConfirm, onCancel }) {
           </svg>
         </div>
 
-        {/* Title */}
         <h2 style={{
           margin: "0 0 0.5rem",
           fontSize: "1.2rem", fontWeight: 700,
@@ -69,12 +65,10 @@ function ExitWarningDialog({ answeredCount, totalCount, onConfirm, onCancel }) {
           Leave the assessment?
         </h2>
 
-        {/* Body */}
         <p style={{ margin: "0 0 1.5rem", fontSize: "0.9rem", color: "#64748b", lineHeight: 1.6 }}>
           Your progress will be lost and you'll need to start over from the beginning.
         </p>
 
-        {/* Progress recap */}
         <div style={{
           background: "rgba(255,255,255,0.03)",
           border: "1px solid rgba(255,255,255,0.06)",
@@ -98,9 +92,7 @@ function ExitWarningDialog({ answeredCount, totalCount, onConfirm, onCancel }) {
           </div>
         </div>
 
-        {/* Actions */}
         <div style={{ display: "flex", gap: "0.75rem" }}>
-          {/* Stay button — primary */}
           <button
             onClick={onCancel}
             autoFocus
@@ -121,7 +113,6 @@ function ExitWarningDialog({ answeredCount, totalCount, onConfirm, onCancel }) {
             Keep going
           </button>
 
-          {/* Leave button — destructive secondary */}
           <button
             onClick={onConfirm}
             style={{
@@ -150,7 +141,6 @@ function ExitWarningDialog({ answeredCount, totalCount, onConfirm, onCancel }) {
           </button>
         </div>
 
-        {/* Keyboard hint */}
         <p style={{ margin: "1rem 0 0", textAlign: "center", fontSize: "0.7rem", color: "#334155" }}>
           Press{" "}
           <kbd style={{ padding: "1px 5px", border: "1px solid #334155", borderRadius: 4, fontSize: "0.66rem", fontFamily: "monospace" }}>Esc</kbd>
@@ -246,6 +236,7 @@ function SectionTransition({ completedSection, nextSection, onContinue }) {
           </div>
         )}
 
+        {/* Continue button — kept for mobile users who have no keyboard */}
         <button
           onClick={onContinue}
           style={{
@@ -293,7 +284,7 @@ export default function Quiz({ onComplete, onBack }) {
   const [selected, setSelected] = useState(null);
   const [transition, setTransition] = useState(null);
   const [showExitWarning, setShowExitWarning] = useState(false);
-  const pendingExitAction = useRef(null); // stores the callback to run if user confirms exit
+  const pendingExitAction = useRef(null);
   const autoAdvanceTimer = useRef(null);
 
   const question = ALL_QUESTIONS[currentIdx];
@@ -306,13 +297,10 @@ export default function Quiz({ onComplete, onBack }) {
     setSelected(answers[question.id] ?? null);
   }, [currentIdx, question.id, answers]);
 
-  // ── Browser navigation guard (popstate / beforeunload) ────────────────────
   useEffect(() => {
-    // Push a history entry so the browser back button triggers popstate
     window.history.pushState({ quizActive: true }, "");
 
     function handlePopState() {
-      // Re-push so the URL doesn't actually change
       window.history.pushState({ quizActive: true }, "");
       triggerExitWarning(() => onBack());
     }
@@ -332,7 +320,6 @@ export default function Quiz({ onComplete, onBack }) {
     };
   }, [answeredCount]);
 
-  // ── Trigger the exit warning with a callback for what to do if confirmed ──
   function triggerExitWarning(exitCallback) {
     if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current);
     pendingExitAction.current = exitCallback;
@@ -352,7 +339,6 @@ export default function Quiz({ onComplete, onBack }) {
     pendingExitAction.current = null;
   }
 
-  // ── Quiz navigation ───────────────────────────────────────────────────────
   function handleNext(scoreOverride) {
     const scoreToUse = scoreOverride !== undefined ? scoreOverride : selected;
     if (scoreToUse === null) return;
@@ -396,9 +382,6 @@ export default function Quiz({ onComplete, onBack }) {
     return () => { if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current); };
   }, []);
 
-  // The "← Back" button / Previous button in the top bar:
-  // - At Q1: show exit warning → leave assessment entirely
-  // - Beyond Q1: go to previous question (no warning needed, no progress lost)
   function handleBackButton() {
     if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current);
     if (currentIdx === 0) {
@@ -410,15 +393,12 @@ export default function Quiz({ onComplete, onBack }) {
     }
   }
 
-  // ── Keyboard handler ──────────────────────────────────────────────────────
   useEffect(() => {
     function handleKey(e) {
-      // Exit warning is open
       if (showExitWarning) {
         if (e.key === "Escape" || e.key === "Enter") handleExitCancel();
         return;
       }
-      // Section transition is open
       if (transition) {
         if (e.key === "Enter") handleTransitionContinue();
         return;
@@ -441,7 +421,6 @@ export default function Quiz({ onComplete, onBack }) {
   return (
     <div style={{ minHeight: "100vh", background: "#080b14", display: "flex", flexDirection: "column", fontFamily: "'DM Sans', sans-serif", position: "relative", overflow: "hidden" }}>
 
-      {/* Exit warning dialog */}
       {showExitWarning && (
         <ExitWarningDialog
           answeredCount={answeredCount}
@@ -451,7 +430,6 @@ export default function Quiz({ onComplete, onBack }) {
         />
       )}
 
-      {/* Section transition overlay */}
       {transition && (
         <SectionTransition
           completedSection={transition.completedSection}
@@ -567,32 +545,14 @@ export default function Quiz({ onComplete, onBack }) {
             })}
           </div>
 
-          {/* Navigation */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.25rem" }}>
-            <button onClick={handleBackButton} disabled={false}
+          {/* Navigation — Previous only */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-start", marginBottom: "1.25rem" }}>
+            <button onClick={handleBackButton}
               style={{ display: "flex", alignItems: "center", gap: "0.4rem", padding: "0.75rem 1.25rem", background: "transparent", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, color: "#64748b", cursor: "pointer", fontSize: "0.9rem", fontFamily: "'DM Sans', sans-serif", transition: "all 0.2s" }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)"; }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; }}>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
               {currentIdx === 0 ? "Exit" : "Previous"}
-            </button>
-
-            <button onClick={() => handleNext()} disabled={selected === null}
-              style={{
-                display: "flex", alignItems: "center", gap: "0.5rem",
-                padding: "0.85rem 2rem",
-                background: selected !== null ? `linear-gradient(135deg, #6366f1, ${currentSection.color})` : "rgba(255,255,255,0.05)",
-                border: "none", borderRadius: 12,
-                color: selected !== null ? "#fff" : "#334155",
-                cursor: selected !== null ? "pointer" : "not-allowed",
-                fontSize: "0.95rem", fontWeight: 600, fontFamily: "'DM Sans', sans-serif",
-                boxShadow: selected !== null ? `0 8px 24px ${currentSection.color}35` : "none",
-                transition: "all 0.2s ease",
-              }}
-              onMouseEnter={e => { if (selected !== null) { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = `0 12px 32px ${currentSection.color}50`; } }}
-              onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = selected !== null ? `0 8px 24px ${currentSection.color}35` : "none"; }}>
-              {currentIdx === total - 1 ? "View Results" : "Continue"}
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
             </button>
           </div>
 

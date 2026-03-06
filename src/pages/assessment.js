@@ -198,16 +198,6 @@ export default function Assessment() {
                 <ChevronLeftIcon />
                 Previous
               </button>
-
-              <button
-                className={`${styles.nextBtn} ${selected === null ? styles.nextDisabled : ''}`}
-                onClick={() => goNext()}
-                disabled={selected === null}
-                style={selected !== null ? { background: `linear-gradient(135deg, #7c6fcd, ${currentSection?.color || '#6366f1'})` } : {}}
-              >
-                {currentIdx === TOTAL - 1 ? 'View Results' : 'Continue'}
-                <ChevronRightIcon />
-              </button>
             </div>
 
             <p className={styles.keyHint}>
@@ -238,14 +228,6 @@ function ChevronLeftIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <polyline points="15 18 9 12 15 6" />
-    </svg>
-  );
-}
-
-function ChevronRightIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="9 18 15 12 9 6" />
     </svg>
   );
 }

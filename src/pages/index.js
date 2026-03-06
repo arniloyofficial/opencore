@@ -36,7 +36,6 @@ export default function Home() {
               className={styles.githubLink}
             >
               <GithubIcon />
-              Open Source
             </a>
           </header>
 
