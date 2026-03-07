@@ -202,7 +202,8 @@ export default function Results({ answers, onRetake }) {
             </div>
           </div>
 
-          <div style={{ marginTop:"2rem", paddingTop:"1.5rem", borderTop:"1px solid rgba(255,255,255,0.06)", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+          {/* Footer — flex-wrap ensures space between items on mobile */}
+          <div style={{ marginTop:"2rem", paddingTop:"1.5rem", borderTop:"1px solid rgba(255,255,255,0.06)", display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:"0.5rem" }}>
             <span style={{ fontSize:"0.72rem", color:"#334155" }}>tryopencore.vercel.app</span>
             <span style={{ fontSize:"0.72rem", color:"#334155" }}>Not a clinical diagnosis</span>
           </div>
@@ -216,7 +217,6 @@ export default function Results({ answers, onRetake }) {
             onMouseLeave={e => { e.currentTarget.style.transform="translateY(0)"; e.currentTarget.style.boxShadow="0 4px 20px rgba(99,102,241,0.35)"; }}>
             <DownloadIcon /> {saving ? "Saving…" : "Download"}
           </button>
-          {/* Copy Link — now copies the unique token URL */}
           <button onClick={copyLink}
             style={{ ...btnBase, background: copyLabel === "Copied!" ? "rgba(34,197,94,0.1)" : "rgba(255,255,255,0.06)", border: `1px solid ${copyLabel === "Copied!" ? "rgba(34,197,94,0.3)" : "rgba(255,255,255,0.1)"}`, color: copyLabel === "Copied!" ? "#22c55e" : "#94a3b8" }}
             onMouseEnter={e => { if (copyLabel !== "Copied!") { e.currentTarget.style.background="rgba(255,255,255,0.1)"; e.currentTarget.style.color="#fff"; }}}

@@ -77,7 +77,8 @@ function HistoryCard({ entry, isCopied, onCopy, onView }) {
       onMouseEnter={e => e.currentTarget.style.borderColor="rgba(255,255,255,0.14)"}
       onMouseLeave={e => e.currentTarget.style.borderColor="rgba(255,255,255,0.07)"}>
 
-      <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:"1rem" }}>
+      {/* Card header: score info + buttons — wraps on mobile */}
+      <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", marginBottom:"1rem", flexWrap:"wrap", gap:"0.75rem" }}>
         <div style={{ display:"flex", alignItems:"center", gap:"0.75rem" }}>
           <div style={{ width:36, height:36, borderRadius:10, background:`${entry.bandColor}18`, border:`1px solid ${entry.bandColor}40`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
             <span style={{ fontSize:"1.1rem", fontWeight:700, color:entry.bandColor, fontFamily:"'Syne', sans-serif" }}>{entry.totalScore}</span>
@@ -87,15 +88,15 @@ function HistoryCard({ entry, isCopied, onCopy, onView }) {
             <div style={{ fontSize:"0.75rem", color:"#475569" }}>{date} · {time}</div>
           </div>
         </div>
-        <div style={{ display:"flex", gap:"0.5rem" }}>
+        <div style={{ display:"flex", gap:"0.5rem", flexShrink:0 }}>
           <button onClick={onCopy}
-            style={{ display:"flex", alignItems:"center", gap:"0.3rem", padding:"0.4rem 0.875rem", background:isCopied?"rgba(34,197,94,0.1)":"rgba(255,255,255,0.05)", border:`1px solid ${isCopied?"rgba(34,197,94,0.3)":"rgba(255,255,255,0.1)"}`, borderRadius:8, color:isCopied?"#22c55e":"#64748b", cursor:"pointer", fontSize:"0.78rem", fontFamily:"'DM Sans', sans-serif", transition:"all 0.2s" }}>
+            style={{ display:"flex", alignItems:"center", gap:"0.3rem", padding:"0.4rem 0.875rem", background:isCopied?"rgba(34,197,94,0.1)":"rgba(255,255,255,0.05)", border:`1px solid ${isCopied?"rgba(34,197,94,0.3)":"rgba(255,255,255,0.1)"}`, borderRadius:8, color:isCopied?"#22c55e":"#64748b", cursor:"pointer", fontSize:"0.78rem", fontFamily:"'DM Sans', sans-serif", transition:"all 0.2s", whiteSpace:"nowrap" }}>
             {isCopied
               ? <><CheckIcon /> Copied!</>
               : <><LinkIcon /> Copy Link</>}
           </button>
           <button onClick={onView}
-            style={{ display:"flex", alignItems:"center", gap:"0.3rem", padding:"0.4rem 0.875rem", background:"rgba(99,102,241,0.1)", border:"1px solid rgba(99,102,241,0.25)", borderRadius:8, color:"#818cf8", cursor:"pointer", fontSize:"0.78rem", fontFamily:"'DM Sans', sans-serif", transition:"all 0.2s" }}
+            style={{ display:"flex", alignItems:"center", gap:"0.3rem", padding:"0.4rem 0.875rem", background:"rgba(99,102,241,0.1)", border:"1px solid rgba(99,102,241,0.25)", borderRadius:8, color:"#818cf8", cursor:"pointer", fontSize:"0.78rem", fontFamily:"'DM Sans', sans-serif", transition:"all 0.2s", whiteSpace:"nowrap" }}
             onMouseEnter={e => e.currentTarget.style.background="rgba(99,102,241,0.2)"}
             onMouseLeave={e => e.currentTarget.style.background="rgba(99,102,241,0.1)"}>
             View →
@@ -103,9 +104,10 @@ function HistoryCard({ entry, isCopied, onCopy, onView }) {
         </div>
       </div>
 
-      <div style={{ display:"grid", gridTemplateColumns:"repeat(4, 1fr)", gap:"0.5rem" }}>
+      {/* Dimension grid: 2 columns on mobile, 4 on wider screens */}
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(2, 1fr)", gap:"0.625rem" }}>
         {entry.sectionScores.map((s) => (
-          <div key={s.id} style={{ display:"flex", flexDirection:"column", gap:"0.25rem" }}>
+          <div key={s.id} style={{ display:"flex", flexDirection:"column", gap:"0.25rem", minWidth:0 }}>
             <div style={{ display:"flex", alignItems:"center", gap:"0.25rem" }}>
               <SectionIcon id={s.icon} size={10} color={s.color} />
               <span style={{ fontSize:"0.62rem", color:"#475569", fontFamily:"'DM Sans', sans-serif", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{s.title}</span>

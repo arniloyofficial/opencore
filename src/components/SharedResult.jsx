@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { SECTIONS, getBand } from "../data/questions";
+import { SECTIONS, ALL_QUESTIONS, getBand } from "../data/questions";
 import { SectionIcon, BandIcon } from "./SectionIcons";
 import { supabase } from "../lib/supabase";
 
@@ -40,20 +40,18 @@ export default function SharedResult({ token, onBack }) {
     supabase.from("results").select("*").eq("token", token).single()
       .then(({ data, error }) => {
         if (error || !data) { setNotFound(true); return; }
-        setResult(data);
-        // Compute section scores from stored answers
-        import("../data/questions").then(({ getAllQuestions }) => {
-          const allQ = getAllQuestions();
-          const answers = data.answers;
-          const scores = SECTIONS.map((section) => {
-            const sectionQs = allQ.filter(q => q.sectionId === section.id);
-            const score = sectionQs.reduce((sum, q) => sum + (answers[q.id] ?? 0), 0);
-            const maxSec = sectionQs.length * 3;
-            const pct = Math.round((score / maxSec) * 100);
-            return { ...section, score, maxSec, pct };
-          });
-          setSectionScores(scores);
+
+        const answers = data.answers;
+        const scores = SECTIONS.map((section) => {
+          const sectionQs = ALL_QUESTIONS.filter(q => q.section === section.id);
+          const score = sectionQs.reduce((sum, q) => sum + (answers[q.id] ?? 0), 0);
+          const maxSec = sectionQs.length * 3;
+          const pct = Math.round((score / maxSec) * 100);
+          return { ...section, score, maxSec, pct };
         });
+
+        setResult(data);
+        setSectionScores(scores);
       });
   }, [token]);
 
@@ -97,24 +95,24 @@ export default function SharedResult({ token, onBack }) {
     <div style={{ minHeight:"100vh", background:"#080b14", fontFamily:"'DM Sans', sans-serif", position:"relative", overflow:"hidden" }}>
       <div style={{ position:"absolute", top:"20%", left:"50%", transform:"translate(-50%,-50%)", width:800, height:800, borderRadius:"50%", background:`radial-gradient(circle, ${band.color}08 0%, transparent 70%)`, pointerEvents:"none" }} />
 
-      {/* Top bar */}
-      <div style={{ padding:"1rem 1.5rem", display:"flex", alignItems:"center", justifyContent:"space-between", borderBottom:"1px solid rgba(255,255,255,0.05)", backdropFilter:"blur(10px)", background:"rgba(8,11,20,0.8)", position:"sticky", top:0, zIndex:10 }}>
+      {/* Top bar — wraps on mobile */}
+      <div style={{ padding:"0.75rem 1rem", display:"flex", alignItems:"center", justifyContent:"space-between", borderBottom:"1px solid rgba(255,255,255,0.05)", backdropFilter:"blur(10px)", background:"rgba(8,11,20,0.8)", position:"sticky", top:0, zIndex:10, flexWrap:"wrap", gap:"0.5rem" }}>
         <button onClick={onBack}
-          style={{ display:"flex", alignItems:"center", gap:"0.5rem", background:"rgba(255,255,255,0.06)", border:"1px solid rgba(255,255,255,0.1)", borderRadius:10, padding:"0.5rem 1rem", color:"#94a3b8", cursor:"pointer", fontSize:"0.85rem", fontFamily:"'DM Sans', sans-serif", transition:"all 0.2s" }}
+          style={{ display:"flex", alignItems:"center", gap:"0.4rem", background:"rgba(255,255,255,0.06)", border:"1px solid rgba(255,255,255,0.1)", borderRadius:10, padding:"0.45rem 0.875rem", color:"#94a3b8", cursor:"pointer", fontSize:"0.82rem", fontFamily:"'DM Sans', sans-serif", transition:"all 0.2s", whiteSpace:"nowrap" }}
           onMouseEnter={e => e.currentTarget.style.background="rgba(255,255,255,0.1)"}
           onMouseLeave={e => e.currentTarget.style.background="rgba(255,255,255,0.06)"}>
           ← Home
         </button>
-        <div style={{ display:"flex", gap:"0.75rem", alignItems:"center" }}>
+        <div style={{ display:"flex", gap:"0.5rem", alignItems:"center", flexWrap:"wrap" }}>
           <button onClick={handleCopyLink}
-            style={{ display:"flex", alignItems:"center", gap:"0.4rem", padding:"0.5rem 1rem", background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.1)", borderRadius:10, color:"#94a3b8", cursor:"pointer", fontSize:"0.82rem", fontFamily:"'DM Sans', sans-serif", transition:"all 0.2s" }}
+            style={{ display:"flex", alignItems:"center", gap:"0.4rem", padding:"0.45rem 0.875rem", background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.1)", borderRadius:10, color:"#94a3b8", cursor:"pointer", fontSize:"0.8rem", fontFamily:"'DM Sans', sans-serif", transition:"all 0.2s", whiteSpace:"nowrap" }}
             onMouseEnter={e => e.currentTarget.style.background="rgba(255,255,255,0.1)"}
             onMouseLeave={e => e.currentTarget.style.background="rgba(255,255,255,0.05)"}>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
             {copyLabel}
           </button>
           <button onClick={onBack}
-            style={{ padding:"0.5rem 1.25rem", background:"linear-gradient(135deg, #6366f1, #8b5cf6)", border:"none", borderRadius:10, color:"#fff", fontSize:"0.82rem", fontWeight:600, fontFamily:"'DM Sans', sans-serif", cursor:"pointer" }}>
+            style={{ padding:"0.45rem 1rem", background:"linear-gradient(135deg, #6366f1, #8b5cf6)", border:"none", borderRadius:10, color:"#fff", fontSize:"0.8rem", fontWeight:600, fontFamily:"'DM Sans', sans-serif", cursor:"pointer", whiteSpace:"nowrap" }}>
             Take the Test
           </button>
         </div>
@@ -129,7 +127,7 @@ export default function SharedResult({ token, onBack }) {
 
       <div style={{ maxWidth:720, margin:"0 auto", padding:"2rem 1rem 4rem" }}>
 
-        {/* Score hero */}
+        {/* Result card */}
         <div style={{ background:"linear-gradient(135deg, #0d1117 0%, #0f172a 100%)", borderRadius:24, padding:"2.5rem", border:"1px solid rgba(255,255,255,0.07)", marginBottom:"1.5rem", position:"relative", overflow:"hidden" }}>
           <div style={{ position:"absolute", top:-100, right:-100, width:300, height:300, borderRadius:"50%", background:`radial-gradient(circle, ${band.color}12 0%, transparent 70%)`, pointerEvents:"none" }} />
 
@@ -179,7 +177,8 @@ export default function SharedResult({ token, onBack }) {
             </div>
           </div>
 
-          <div style={{ marginTop:"2rem", paddingTop:"1.5rem", borderTop:"1px solid rgba(255,255,255,0.06)", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+          {/* Footer — flex-wrap ensures space between items on mobile */}
+          <div style={{ marginTop:"2rem", paddingTop:"1.5rem", borderTop:"1px solid rgba(255,255,255,0.06)", display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:"0.5rem" }}>
             <span style={{ fontSize:"0.72rem", color:"#334155" }}>tryopencore.vercel.app</span>
             <span style={{ fontSize:"0.72rem", color:"#334155" }}>Not a clinical diagnosis</span>
           </div>
